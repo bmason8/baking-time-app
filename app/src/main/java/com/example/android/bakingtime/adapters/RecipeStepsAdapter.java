@@ -2,6 +2,7 @@ package com.example.android.bakingtime.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,7 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<ViewHolder> {
     private final Context mContext;
     private final ArrayList<Steps> mRecipeSteps;
     private RecipeStepsAdapter.ClickHandler mClickListener;
+    private int testPosition;
 
     public interface ClickHandler {
         void onItemClick(int position);
@@ -37,11 +39,13 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<ViewHolder> {
     public class ViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
         final TextView recipeStepTextView;
         final TextView recipeNameTextView;
+        final ConstraintLayout mContainerLayout;
 
         public ViewHolder(View view) {
             super(view);
             recipeStepTextView = view.findViewById(R.id.step_number);
             recipeNameTextView = view.findViewById(R.id.step_description);
+            mContainerLayout = view.findViewById(R.id.recipe_step_container);
             view.setOnClickListener(this);
         }
 
@@ -67,6 +71,22 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<ViewHolder> {
         String recipeStep = String.valueOf(steps.getId() + 1);
         viewHolder.recipeStepTextView.setText(recipeStep);
         viewHolder.recipeNameTextView.setText(steps.getShortDescription());
+
+//        // update style
+//        viewHolder.mContainerLayout.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                testPosition = position;
+//            }
+//        });
+//        if (testPosition == position) {
+//            viewHolder.recipeStepTextView.setTextColor(Color.WHITE);
+//            viewHolder.recipeNameTextView.setTextColor(Color.WHITE);
+//            viewHolder.mContainerLayout.setBackgroundResource(R.drawable.round_corners_selected);
+//        }
+
+
+
     }
 
     @Override
