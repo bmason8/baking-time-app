@@ -1,5 +1,6 @@
 package com.example.android.bakingtime;
 
+import android.arch.persistence.room.Room;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,6 +11,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.android.bakingtime.adapters.RecipeCardAdapter;
+import com.example.android.bakingtime.database.RecipeDao;
+import com.example.android.bakingtime.database.RecipeDatabase;
 import com.example.android.bakingtime.model.Recipe;
 import com.example.android.bakingtime.utilities.ApiInterface;
 
@@ -26,8 +29,10 @@ import static com.example.android.bakingtime.utilities.ApiInterface.BAKING_RECIP
 
 public class MainActivity extends AppCompatActivity implements RecipeCardAdapter.ClickHandler {
 
-    private List<Recipe> mRecipeList;
+    RecipeDatabase mDatabase;
+    RecipeDao mRecipeDao;
 
+    private List<Recipe> mRecipeList;
     private RecyclerView mRecyclerView;
     private RecipeCardAdapter mAdapter;
 
@@ -69,6 +74,11 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                     mAdapter.setRecipesList(result);
                     mRecipeList = result;
                     Log.d("result: ", mRecipeList.toString());
+
+                    // Add all recipes to database
+                    mDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, "Recipe_db").allowMainThreadQueries().build();
+                    mDatabase.recipeDao().insertAll(mRecipeList);
+
                 } else {
                     Log.d("failed", "failed to retrieve recipe list");
                     Toast.makeText(MainActivity.this, "Failed to fetch recipes", Toast.LENGTH_LONG).show();

@@ -1,4 +1,6 @@
 package com.example.android.bakingtime.model;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 
 import com.google.gson.annotations.Expose;
@@ -8,6 +10,7 @@ import java.util.List;
 /**
  * Awesome Pojo Generator
  * */
+@Entity(tableName = "recipes")
 public class Recipe implements android.os.Parcelable {
 
   @SerializedName("image")
@@ -26,6 +29,7 @@ public class Recipe implements android.os.Parcelable {
   @Expose
   private List<Ingredients> ingredients;
 
+  @PrimaryKey
   @SerializedName("id")
   @Expose
   private Integer id;
