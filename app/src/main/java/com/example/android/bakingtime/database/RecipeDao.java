@@ -12,7 +12,7 @@ import java.util.List;
 @Dao
 public interface RecipeDao {
 
-    @Query("SELECT * FROM recipes WHERE :id")
+    @Query("SELECT * FROM recipes WHERE :id = id")
     Recipe getRecipeById(int id);
 
     @Query("SELECT * FROM recipes")

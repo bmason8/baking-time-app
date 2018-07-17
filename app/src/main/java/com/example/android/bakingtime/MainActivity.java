@@ -15,9 +15,11 @@ import com.example.android.bakingtime.database.RecipeDao;
 import com.example.android.bakingtime.database.RecipeDatabase;
 import com.example.android.bakingtime.model.Recipe;
 import com.example.android.bakingtime.utilities.ApiInterface;
+import com.example.android.bakingtime.utilities.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,6 +43,24 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (getIntent() != null && getIntent().getExtras() != null) {
+
+            if (Objects.equals(getIntent().getStringExtra(Constants.RECIPE_INTENT_SOURCE), Constants.INTENT_FROM_WIDGET_CLICK)) {
+
+                int recipeId = getIntent().getIntExtra(Constants.RECIPE_WIDGET_ID, 1);
+
+                RecipeDatabase mRecipeDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, "Recipe_db").allowMainThreadQueries().build();
+                Recipe recipe = mRecipeDatabase.recipeDao().getRecipeById(recipeId);
+
+                startRecipeDetailsActivityFromWidgetClick(recipe);
+
+                // SHOULD TRY TO GET RECIPE FROM DATABASE FIRST
+//                List<Recipe> mRecipeList = NetworkUtils.fetchRecipes(getApplicationContext());
+//                recipe = mRecipeList.get(recipeId);
+//                mRecipeSteps = recipe.getSteps();
+            }
+            }
+
         mRecipeList = new ArrayList<>();
         mRecyclerView = findViewById(R.id.recipe_cards_recyclerView);
 
@@ -52,6 +72,14 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         mAdapter.setRecipesList(mRecipeList);
 
         fetchRecipes();
+    }
+
+    private void startRecipeDetailsActivityFromWidgetClick(Recipe recipe) {
+        Intent intent = new Intent(this, RecipeDetailsActivity.class);
+        intent.putExtra(Constants.RECIPE_INTENT_SOURCE, Constants.INTENT_FROM_MAIN_ACTIVITY_CLICK);
+        intent.putExtra("clickedRecipe", recipe);
+        startActivity(intent);
+
     }
 
     private void fetchRecipes() {
@@ -98,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         Recipe recipe = mRecipeList.get(position);
         // build an Intent to pass recipe information to recipe detail activity
         Intent intent = new Intent(this, RecipeDetailsActivity.class);
+        intent.putExtra(Constants.RECIPE_INTENT_SOURCE, Constants.INTENT_FROM_MAIN_ACTIVITY_CLICK);
         intent.putExtra("clickedRecipe", recipe);
         startActivity(intent);
     }
