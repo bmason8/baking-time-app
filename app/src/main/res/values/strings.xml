@@ -3,4 +3,6 @@
     <string name="servings">Servings:</string>
     <string name="steps">Steps:</string>
     <string name="recipe_image">Recipe Image</string>
+    <string name="previous_button">Previous button</string>
+    <string name="next_button">Next button</string>
 </resources>

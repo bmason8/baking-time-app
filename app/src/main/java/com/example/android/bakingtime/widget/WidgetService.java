@@ -3,6 +3,8 @@ package com.example.android.bakingtime.widget;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -10,6 +12,7 @@ import com.example.android.bakingtime.R;
 import com.example.android.bakingtime.database.RecipeDatabase;
 import com.example.android.bakingtime.model.Ingredients;
 import com.example.android.bakingtime.model.Recipe;
+import com.example.android.bakingtime.utilities.Constants;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -44,7 +47,10 @@ public class WidgetService extends RemoteViewsService {
         @Override
         public void onDataSetChanged() {
             // Need to change this so the recipeId is stored in PreferencesManager
-            int recipeId = 2;
+            SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            int recipeId = mPreferences.getInt(Constants.WIDGET_RECIPE_ID, 1);
+
+//            int recipeId = 2;
             mRecipe = mRecipeDatabase.recipeDao().getRecipeById(recipeId);
             mIngredientsList = mRecipe.getIngredients();
         }

@@ -29,7 +29,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeSt
 
             mRecipe = getIntent().getParcelableExtra("clickedRecipe");
             mRecipeSteps = mRecipe.getSteps();
-            Toast.makeText(getApplicationContext(), "SHOULD HAVE RUN", Toast.LENGTH_LONG).show();
+//            Toast.makeText(getApplicationContext(), "SHOULD HAVE RUN", Toast.LENGTH_LONG).show();
             Log.d("RAN:", "else if with SHOULD HAVE RUN");
 
 
@@ -92,7 +92,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeSt
                     fragmentManager.beginTransaction()
                             .add(R.id.fragment_container, recipeStepsFragment)
                             .commit();
-                    Toast.makeText(getApplicationContext(), "Single Pane Layout", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(getApplicationContext(), "Single Pane Layout", Toast.LENGTH_LONG).show();
             }
 
         }

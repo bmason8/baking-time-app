@@ -43,6 +43,11 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+//        SharedPreferences mPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
+//        int widgetRecipeInt = mPreferences.getInt("widgetRecipeInt", 1);
+
+
+
         if (getIntent() != null && getIntent().getExtras() != null) {
 
             if (Objects.equals(getIntent().getStringExtra(Constants.RECIPE_INTENT_SOURCE), Constants.INTENT_FROM_WIDGET_CLICK)) {
