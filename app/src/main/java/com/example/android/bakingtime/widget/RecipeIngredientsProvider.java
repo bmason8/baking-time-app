@@ -28,8 +28,6 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
 
     private RemoteViews updateWidget(Context context) {
 
-//        Toast.makeText(context, "updateWidget ran", Toast.LENGTH_LONG).show();
-
         SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         int id = mPreferences.getInt(Constants.WIDGET_RECIPE_ID, 1);
 
@@ -57,14 +55,14 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
             Intent nextBtnIntent = new Intent(context, RecipeIngredientsProvider.class);
             nextBtnIntent.putExtra("direction", "forward");
             nextBtnIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-            PendingIntent nextBtnPendingIntent = PendingIntent.getBroadcast(context, 0, nextBtnIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent nextBtnPendingIntent = PendingIntent.getBroadcast(context, 1, nextBtnIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             views.setOnClickPendingIntent(R.id.widget_next_recipe_btn, nextBtnPendingIntent);
 
             // Intent/Pending Intent for moving to previous recipe
             Intent previousBtnIntent = new Intent(context, RecipeIngredientsProvider.class);
             previousBtnIntent.putExtra("direction", "previous");
             previousBtnIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-            PendingIntent previousBtnPendingIntent = PendingIntent.getBroadcast(context, 0, previousBtnIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent previousBtnPendingIntent = PendingIntent.getBroadcast(context, 2, previousBtnIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             views.setOnClickPendingIntent(R.id.widget_previous_recipe_btn, previousBtnPendingIntent);
 
             Intent serviceIntent = new Intent(context, WidgetService.class);
@@ -75,37 +73,36 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        String direction = null;
+
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, RecipeIngredientsProvider.class));
 
         String action = intent.getAction();
         Bundle extras = intent.getExtras();
-        String direction = null;
-        if (extras != null) {
-            direction = extras.getString("direction", "previous");
-        }
+            if (extras != null) {
+                direction = extras.getString("direction", "forward");
+            }
 
         if (Objects.equals(action, AppWidgetManager.ACTION_APPWIDGET_UPDATE)) {
 
             if (Objects.equals(direction, "forward")) {
 
-                SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-                int id = mPreferences.getInt(Constants.WIDGET_RECIPE_ID, 1);
-                int updatedId = id + 1;
+                int id = getSavedWidgetId(context)
+;                int updatedId = id + 1;
                 if (updatedId > 4) {
                     updatedId = 1;
                 }
 
-                mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-                SharedPreferences.Editor editor = mPreferences.edit();
-                editor.putInt(Constants.WIDGET_RECIPE_ID, updatedId);
-                editor.apply();
+                updateSavedWidgetId(context, updatedId);
 
-                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-                int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, RecipeIngredientsProvider.class));
+                Toast.makeText(context, "forward: " + String.valueOf(updatedId), Toast.LENGTH_LONG).show();
 
                 appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
                 for (int appWidgetId : appWidgetIds) {
                     appWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateWidget(context));
                 }
+
             } else if (Objects.equals(direction, "previous")){
                 SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
                 int id = mPreferences.getInt(Constants.WIDGET_RECIPE_ID, 1);
@@ -114,13 +111,9 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
                     updatedId = 4;
                 }
 
-                mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-                SharedPreferences.Editor editor = mPreferences.edit();
-                editor.putInt(Constants.WIDGET_RECIPE_ID, updatedId);
-                editor.apply();
+                updateSavedWidgetId(context, updatedId);
 
-                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-                int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, RecipeIngredientsProvider.class));
+                Toast.makeText(context, "previous: " + String.valueOf(updatedId), Toast.LENGTH_LONG).show();
 
                 appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
                 for (int appWidgetId : appWidgetIds) {
@@ -130,8 +123,8 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
         }
         else {
 
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, RecipeIngredientsProvider.class));
+//            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+//            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, RecipeIngredientsProvider.class));
 
             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
             for (int appWidgetId : appWidgetIds) {
@@ -145,7 +138,6 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // There may be multiple widgets active, so update all of them
-        Toast.makeText(context, "onUpdate ran", Toast.LENGTH_LONG).show();
         appWidgetManager.updateAppWidget(appWidgetIds, updateWidget(context));
     }
 
@@ -157,6 +149,18 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
     @Override
     public void onDisabled(Context context) {
         // Enter relevant functionality for when the last widget is disabled
+    }
+
+    private int getSavedWidgetId(Context context) {
+        SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return mPreferences.getInt(Constants.WIDGET_RECIPE_ID, 1);
+    }
+
+    private void updateSavedWidgetId(Context context, int updatedId) {
+        SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putInt(Constants.WIDGET_RECIPE_ID, updatedId);
+        editor.apply();
     }
 }
 
