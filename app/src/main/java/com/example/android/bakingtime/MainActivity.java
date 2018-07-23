@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -43,11 +44,6 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        SharedPreferences mPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
-//        int widgetRecipeInt = mPreferences.getInt("widgetRecipeInt", 1);
-
-
-
         if (getIntent() != null && getIntent().getExtras() != null) {
 
             if (Objects.equals(getIntent().getStringExtra(Constants.RECIPE_INTENT_SOURCE), Constants.INTENT_FROM_WIDGET_CLICK)) {
@@ -69,7 +65,12 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         mRecipeList = new ArrayList<>();
         mRecyclerView = findViewById(R.id.recipe_cards_recyclerView);
 
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        if (findViewById(R.id.activity_main_tablet_layout) != null) {
+            mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        } else {
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        }
+
         mRecyclerView.setHasFixedSize(true);
         mAdapter = new RecipeCardAdapter(this);
         mRecyclerView.setAdapter(mAdapter);

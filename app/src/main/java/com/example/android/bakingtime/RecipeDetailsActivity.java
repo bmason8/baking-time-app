@@ -58,6 +58,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeSt
             bundle.putParcelable("recipe", mRecipe);
             bundle.putParcelableArrayList("recipeSteps", (ArrayList<? extends Parcelable>) mRecipeSteps);
 
+            // Landscape Mode
             if (findViewById(R.id.tablet_container) != null) {
                 mTwoPane = true;
                 bundle.putBoolean("twoPane", mTwoPane);
@@ -82,6 +83,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeSt
                     Toast.makeText(getApplicationContext(), "Two Pane Layout", Toast.LENGTH_SHORT).show();
 
                 }
+                // Portrait Mode
             } else {
                     mTwoPane = false;
                     bundle.putBoolean("twoPane", mTwoPane);
