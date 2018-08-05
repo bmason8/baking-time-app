@@ -4,7 +4,9 @@ import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -21,19 +23,22 @@ import java.util.List;
 // https://stackoverflow.com/questions/22262867/android-widget-with-listview-doesnt-load-items-correclty
 public class WidgetService extends RemoteViewsService {
 
+    Recipe mRecipe;
+    List<Recipe> mRecipeList;
+
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
+        Log.d("testWS: ", "onGetViewFactory");
         return new WidgetRemoteViewsFactory(this.getApplicationContext());
     }
 
     class WidgetRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         final Context mContext;
-//        RecipeDatabase mRecipeDatabase;
-        RecipeDatabase mRecipeDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, "Recipe_db").allowMainThreadQueries().build();
-        List<Recipe> mRecipeList;
+
         List<Ingredients> mIngredientsList;
-        Recipe mRecipe;
+
         Ingredients mIngredient;
+        int tempRecipeId;
 
         WidgetRemoteViewsFactory(Context applicationContext) {
             mContext = applicationContext.getApplicationContext();
@@ -41,7 +46,7 @@ public class WidgetService extends RemoteViewsService {
 
         @Override
         public void onCreate() {
-
+            Log.d("testWS: ", "onCreate");
         }
 
         @Override
@@ -49,21 +54,54 @@ public class WidgetService extends RemoteViewsService {
             // Need to change this so the recipeId is stored in PreferencesManager
             SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             int recipeId = mPreferences.getInt(Constants.WIDGET_RECIPE_ID, 1);
+            tempRecipeId = recipeId;
+            Log.d("testWS: ", "onDataSetChangedStarted");
 
 //            int recipeId = 2;
-            mRecipe = mRecipeDatabase.recipeDao().getRecipeById(recipeId);
-            mIngredientsList = mRecipe.getIngredients();
+            if (mRecipeList == null) {
+                RecipeDatabase mRecipeDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, "Recipe_db").allowMainThreadQueries().build();
+                mRecipeList = mRecipeDatabase.recipeDao().getAllRecipes();
+                Log.d("testWS: ", "if_populatemRecipeList");
+                mRecipeDatabase.close();
+            }
+
+                mRecipe = mRecipeList.get(recipeId);
+                Log.d("testWS: ", "populatemRecipe");
+
+//            mRecipe = mRecipeDatabase.recipeDao().getRecipeById(recipeId);
+
+//            if (mRecipe == null) {
+//                new GetRecipeById().execute(recipeId);
+//            }
+
+
+//            mRecipe = RoomAccess.getRecipeById(recipeId, getApplicationContext());
+
+//            mRecipeViewModel.getRecipe(recipeId).observe((LifecycleOwner) getApplicationContext(), new Observer<Recipe>() {
+//                @Override
+//                public void onChanged(@Nullable Recipe recipe) {
+//                    mRecipe = recipe;
+//                }
+//            });
+
+            if (mRecipe != null) {
+                mIngredientsList = mRecipe.getIngredients();
+            }
+            Log.d("testWS: ", "onDataSetChangedFinished");
         }
 
         @Override
         public void onDestroy() {
-            mRecipeDatabase.close();
+//            mRecipeDatabase.close();
+            Log.d("testWS: ", "onDestroy");
         }
 
         @Override
         public int getCount() {
             if (mIngredientsList == null) return 0;
+            Log.d("testWS: ", "getCount");
             return mIngredientsList.size();
+
         }
 
         @Override
@@ -86,6 +124,7 @@ public class WidgetService extends RemoteViewsService {
             views.setTextViewText(R.id.widget_ingredient_measurement, ingredientMeasure);
             views.setTextViewText(R.id.widget_ingredient_name, ingredientName);
 
+            Log.d("testWS: ", "getViewAt");
             return views;
         }
 
@@ -101,12 +140,26 @@ public class WidgetService extends RemoteViewsService {
 
         @Override
         public long getItemId(int i) {
+            Log.d("testWS: ", "getItemId: " + String.valueOf(i));
             return i;
         }
 
         @Override
         public boolean hasStableIds() {
             return true;
+        }
+    }
+
+    private class GetRecipeById extends AsyncTask<Integer, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Integer... position) {
+            int post = position[0];
+            RecipeDatabase mDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, "Recipe_db").build();
+            mRecipe = mDatabase.recipeDao().getRecipeById(post);
+            Log.d("testWS: ", "GetRecipeBy");
+            mDatabase.close();
+            return null;
         }
     }
 

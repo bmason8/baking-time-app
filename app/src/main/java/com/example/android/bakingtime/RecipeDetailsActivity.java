@@ -33,27 +33,6 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeSt
             Log.d("RAN:", "else if with SHOULD HAVE RUN");
 
 
-//            if (Objects.equals(getIntent().getStringExtra(Constants.RECIPE_INTENT_SOURCE), Constants.INTENT_FROM_WIDGET_CLICK)) {
-//                int recipeId = getIntent().getIntExtra(Constants.RECIPE_WIDGET_ID, 1);
-//                RecipeDatabase mRecipeDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, "Recipe_db").allowMainThreadQueries().build();
-//                mRecipe = mRecipeDatabase.recipeDao().getRecipeById(recipeId);
-//
-//                Toast.makeText(getApplicationContext(), "SHOULDN'T HAVE RUN", Toast.LENGTH_LONG).show();
-//
-//                // SHOULD TRY TO GET RECIPE FROM DATABASE FIRST
-////                List<Recipe> mRecipeList = NetworkUtils.fetchRecipes(getApplicationContext());
-////                recipe = mRecipeList.get(recipeId);
-////                mRecipeSteps = recipe.getSteps();
-//
-//            } else if (Objects.equals(getIntent().getStringExtra(Constants.RECIPE_INTENT_SOURCE), Constants.INTENT_FROM_MAIN_ACTIVITY_CLICK)) {
-//
-//                mRecipe = getIntent().getParcelableExtra("clickedRecipe");
-//                mRecipeSteps = mRecipe.getSteps();
-//                Toast.makeText(getApplicationContext(), "SHOULD HAVE RUN", Toast.LENGTH_LONG).show();
-//                Log.d("RAN:", "else if with SHOULD HAVE RUN");
-//            }
-
-
             Bundle bundle = new Bundle();
             bundle.putParcelable("recipe", mRecipe);
             bundle.putParcelableArrayList("recipeSteps", (ArrayList<? extends Parcelable>) mRecipeSteps);

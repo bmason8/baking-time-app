@@ -13,8 +13,10 @@ public abstract class RecipeDatabase extends RoomDatabase {
 
     public abstract RecipeDao recipeDao();
 
-//    private static RecipeDatabase INSTANCE;
-//
+    private static RecipeDatabase INSTANCE;
+
+    // https://codelabs.developers.google.com/codelabs/android-room-with-a-view/#6
+
 //    static RecipeDatabase getDatabase(final Context context) {
 //        if (INSTANCE == null) {
 //            synchronized (RecipeDatabase.class) {

@@ -2,6 +2,7 @@ package com.example.android.bakingtime;
 
 import android.arch.persistence.room.Room;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 import com.example.android.bakingtime.adapters.RecipeCardAdapter;
 import com.example.android.bakingtime.database.RecipeDao;
 import com.example.android.bakingtime.database.RecipeDatabase;
+import com.example.android.bakingtime.database.RoomAccess;
 import com.example.android.bakingtime.model.Recipe;
 import com.example.android.bakingtime.utilities.ApiInterface;
 import com.example.android.bakingtime.utilities.Constants;
@@ -35,25 +37,41 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
     RecipeDatabase mDatabase;
     RecipeDao mRecipeDao;
 
+//    private RecipeViewModel mRecipeViewModel;
+
     private List<Recipe> mRecipeList;
+    private Recipe mRecipe;
     private RecyclerView mRecyclerView;
     private RecipeCardAdapter mAdapter;
+    private int recipeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+//        mRecipeViewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
+
         if (getIntent() != null && getIntent().getExtras() != null) {
 
             if (Objects.equals(getIntent().getStringExtra(Constants.RECIPE_INTENT_SOURCE), Constants.INTENT_FROM_WIDGET_CLICK)) {
+                // TODO: Need to figure out why I'm getting passed the recipe POSITION in the array instead of the actual id.
+                recipeId = getIntent().getIntExtra(Constants.RECIPE_WIDGET_ID, 1);
+                Log.d("IDrecievedByMA: ", String.valueOf(recipeId));
 
-                int recipeId = getIntent().getIntExtra(Constants.RECIPE_WIDGET_ID, 1);
+//                RecipeDatabase mRecipeDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, "Recipe_db").allowMainThreadQueries().build();
+//                Recipe recipe = mRecipeDatabase.recipeDao().getRecipeById(recipeId);
 
-                RecipeDatabase mRecipeDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, "Recipe_db").allowMainThreadQueries().build();
-                Recipe recipe = mRecipeDatabase.recipeDao().getRecipeById(recipeId);
+                new GetRecipeById().execute();
 
-                startRecipeDetailsActivityFromWidgetClick(recipe);
+//                mRecipeViewModel.getRecipe(recipeId).observe(this, new Observer<Recipe>() {
+//                    @Override
+//                    public void onChanged(@Nullable Recipe recipe) {
+//                        mRecipe = recipe;
+//                    }
+//                });
+
+//                startRecipeDetailsActivityFromWidgetClick(mRecipe);
 
                 // SHOULD TRY TO GET RECIPE FROM DATABASE FIRST
 //                List<Recipe> mRecipeList = NetworkUtils.fetchRecipes(getApplicationContext());
@@ -110,8 +128,8 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                     Log.d("result: ", mRecipeList.toString());
 
                     // Add all recipes to database
-                    mDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, "Recipe_db").allowMainThreadQueries().build();
-                    mDatabase.recipeDao().insertAll(mRecipeList);
+                    // http://androidkt.com/room-persistence-library/
+                    RoomAccess.insertRecipes(mRecipeList, getApplicationContext());
 
                 } else {
                     Log.d("failed", "failed to retrieve recipe list");
@@ -136,4 +154,22 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         intent.putExtra("clickedRecipe", recipe);
         startActivity(intent);
     }
+
+    private class GetRecipeById extends AsyncTask<Void, Void, Recipe> {
+
+        @Override
+        protected Recipe doInBackground(Void... voids) {
+            RecipeDatabase mDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, "Recipe_db").build();
+            mRecipe = mDatabase.recipeDao().getRecipeById(recipeId);
+            mDatabase.close();
+            return mRecipe;
+        }
+
+        @Override
+        protected void onPostExecute(Recipe recipe) {
+            startRecipeDetailsActivityFromWidgetClick(recipe);
+        }
+    }
+
+
 }
