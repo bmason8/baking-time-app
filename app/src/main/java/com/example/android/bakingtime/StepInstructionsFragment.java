@@ -1,13 +1,18 @@
 package com.example.android.bakingtime;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,6 +59,10 @@ public class StepInstructionsFragment extends Fragment {
     TextView mShortDescription;
     @BindView(R.id.description)
     TextView mDescription;
+    @BindView(R.id.cardView)
+    CardView mButtonCardView;
+    @BindView(R.id.exo_player_frame)
+    FrameLayout mExoPlayerFrame;
 
     private SimpleExoPlayer mExoPlayer;
 //    private SimpleExoPlayerView mPlayerView;
@@ -107,9 +116,12 @@ public class StepInstructionsFragment extends Fragment {
     }
 
     private void initializePlayer(Uri mediaUri) {
+
+        Log.d("video", "initializePlayer ran");
         // need to set up an if/else statement for replacing the default exoPlayer view with a thumbnail and no controls if there is no mediaUri
 
         if (mExoPlayer == null) {
+            Log.d("video", "mExoplayer is null");
             // Create an instance of the ExoPlayer
             TrackSelector trackSelector = new DefaultTrackSelector();
             LoadControl loadControl = new DefaultLoadControl();
@@ -126,17 +138,25 @@ public class StepInstructionsFragment extends Fragment {
     }
 
     private void releasePlayer() {
-        mExoPlayer.stop();
-        mExoPlayer.release();
-        mExoPlayer = null;
+        if (mExoPlayer != null) {
+            mExoPlayer.stop();
+            mExoPlayer.release();
+            mExoPlayer = null;
+        }
     }
 
 
     private void updateData() {
         mShortDescription.setText(mInstructions.getShortDescription());
         mDescription.setText(mInstructions.getDescription());
-        if (mInstructions.getVideoURL() != null) {
+        String videoUrl = mInstructions.getVideoURL();
+        Log.d("videoURL ", "something: " + videoUrl);
+        if (!videoUrl.isEmpty()) {
             initializePlayer(NetworkUtils.convertStringToUri(mInstructions.getVideoURL()));
+        } else {
+            // replace exoPlayer with image
+            Bitmap testImage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_banana);
+            mPlayerView.setDefaultArtwork(testImage);
         }
     }
 
@@ -164,5 +184,26 @@ public class StepInstructionsFragment extends Fragment {
         updateData();
     }
 
-
+//    @Override
+//    public void onConfigurationChanged(Configuration newConfig) {
+//        super.onConfigurationChanged(newConfig);
+//
+//        Toast.makeText(getContext(), "onConfigurationChanged", Toast.LENGTH_SHORT).show();
+//
+//        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//            mDescription.setVisibility(View.GONE);
+//            mShortDescription.setVisibility(View.GONE);
+//            mButtonCardView.setVisibility(View.GONE);
+//            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mExoPlayerFrame.getLayoutParams();
+//            params.width = LayoutParams.MATCH_PARENT;
+//            params.height = LayoutParams.MATCH_PARENT;
+//        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+//            mDescription.setVisibility(View.VISIBLE);
+//            mShortDescription.setVisibility(View.VISIBLE);
+//            mButtonCardView.setVisibility(View.VISIBLE);
+//            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mExoPlayerFrame.getLayoutParams();
+//            params.width = LayoutParams.MATCH_PARENT;
+//            params.height = LayoutParams.WRAP_CONTENT;
+//        }
+//    }
 }

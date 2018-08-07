@@ -1,7 +1,10 @@
 package com.example.android.bakingtime;
 
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -19,16 +22,48 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeSt
     Recipe mRecipe;
     private boolean mTwoPane;
 
+    List<Steps> mStepsTest;
+    Recipe mRecipeTest;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_details);
+
+        // In onCreate, this activity checks for an intent. If not null, gets the Recipe and then gets the Recipe Steps from it.
+        // It then creates a new bundle with the Recipe and the Recipe Steps.
+        // Then it checks for a tablet/landscape layout and creates one or both fragments depending on whether that view exists.
+        // As a result, the fragment(s) are inflated and the view is updated
+
+//        RecipeDetailsViewModel viewModel = ViewModelProviders.of(this).get(RecipeDetailsViewModel.class);
+//        viewModel.getRecipeLiveData().observe(this, new Observer<Recipe>() {
+//            @Override
+//            public void onChanged(@Nullable Recipe recipe) {
+//                mRecipe = recipe;
+//                mRecipeSteps = mRecipe.getSteps();
+//            }
+//        });
+
+        TestViewModel testViewModel = ViewModelProviders.of(this).get(TestViewModel.class);
+
+
 
 //        mRecipe = null;
         if (getIntent() != null && getIntent().getExtras() != null) {
 
             mRecipe = getIntent().getParcelableExtra("clickedRecipe");
             mRecipeSteps = mRecipe.getSteps();
+            mStepsTest = mRecipe.getSteps();
+//            Log.d("mutableSteps:", "mRecipe.getSteps: " + String.valueOf(mRecipeSteps));
+
+
+            testViewModel.mTestString.setValue("It worked!");
+            testViewModel.mRecipeMutableLiveData.setValue(mRecipe);
+//            testViewModel.mRecipeStepsMutableLiveData.setValue(mRecipeSteps);
+
+            testViewModel.mRecipeStepsMutableLiveData.setValue(mStepsTest);
+
 //            Toast.makeText(getApplicationContext(), "SHOULD HAVE RUN", Toast.LENGTH_LONG).show();
             Log.d("RAN:", "else if with SHOULD HAVE RUN");
 
@@ -68,12 +103,16 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeSt
                     bundle.putBoolean("twoPane", mTwoPane);
 
                     FragmentManager fragmentManager = getSupportFragmentManager();
-                    RecipeStepsFragment recipeStepsFragment = new RecipeStepsFragment();
-                    recipeStepsFragment.setArguments(bundle);
-                    fragmentManager.beginTransaction()
-                            .add(R.id.fragment_container, recipeStepsFragment)
-                            .commit();
-//                    Toast.makeText(getApplicationContext(), "Single Pane Layout", Toast.LENGTH_LONG).show();
+                    List<Fragment> fragments = fragmentManager.getFragments();
+
+                    if (fragments.isEmpty()) {
+//                        Toast.makeText(getApplicationContext(), "isEmpty", Toast.LENGTH_LONG).show();
+                        RecipeStepsFragment recipeStepsFragment = new RecipeStepsFragment();
+                        recipeStepsFragment.setArguments(bundle);
+                        fragmentManager.beginTransaction()
+                                .add(R.id.fragment_container, recipeStepsFragment)
+                                .commit();
+                    }
             }
 
         }
@@ -87,5 +126,12 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeSt
         if (stepInstructionsFragment != null) {
             stepInstructionsFragment.positionUpdate(position);
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Toast.makeText(getApplicationContext(), "onConfigurationChanged!", Toast.LENGTH_SHORT).show();
+
     }
 }

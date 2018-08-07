@@ -1,4 +1,5 @@
 package com.example.android.bakingtime.model;
+import android.arch.lifecycle.MutableLiveData;
 import android.os.Parcel;
 
 import com.google.gson.annotations.Expose;
@@ -6,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
 /**
  * Awesome Pojo Generator
  * */
-public class Steps implements android.os.Parcelable {
+public class Steps extends MutableLiveData implements android.os.Parcelable {
 
   @SerializedName("videoURL")
   @Expose
