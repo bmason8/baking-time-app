@@ -5,9 +5,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Toast;
@@ -16,10 +15,13 @@ import com.example.android.bakingtime.adapters.RecipeCardAdapter;
 import com.example.android.bakingtime.database.RecipeDao;
 import com.example.android.bakingtime.database.RecipeDatabase;
 import com.example.android.bakingtime.database.RoomAccess;
+import com.example.android.bakingtime.fragments.RecipeCardsFragment;
+import com.example.android.bakingtime.fragments.StepsFragment;
 import com.example.android.bakingtime.model.Recipe;
 import com.example.android.bakingtime.utilities.ApiInterface;
 import com.example.android.bakingtime.utilities.Constants;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -48,7 +50,12 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_new);
+
+
+
+
+
 
 //        mRecipeViewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
 
@@ -81,24 +88,38 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
             }
 
         mRecipeList = new ArrayList<>();
-        mRecyclerView = findViewById(R.id.recipe_cards_recyclerView);
-
-        if (findViewById(R.id.activity_main_tablet_layout) != null) {
-            mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        } else {
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        }
-
-        mRecyclerView.setHasFixedSize(true);
-        mAdapter = new RecipeCardAdapter(this);
-        mRecyclerView.setAdapter(mAdapter);
-        mAdapter.AdapterClickListener(MainActivity.this);
-        mAdapter.setRecipesList(mRecipeList);
+//        mRecyclerView = findViewById(R.id.recipe_cards_recyclerView);
+//
+//        if (findViewById(R.id.activity_main_tablet_layout) != null) {
+//            mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+//        } else {
+//            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        }
+//
+//        mRecyclerView.setHasFixedSize(true);
+//        mAdapter = new RecipeCardAdapter(this);
+//        mRecyclerView.setAdapter(mAdapter);
+//        mAdapter.AdapterClickListener(MainActivity.this);
+//        mAdapter.setRecipesList(mRecipeList);
 
         fetchRecipes();
+
+        // Create the RecipeCards fragment if there isn't already one created
+        if (savedInstanceState == null) {
+            Toast.makeText(this, "created a new RecipeCardsFrag from MA", Toast.LENGTH_SHORT).show();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            RecipeCardsFragment recipeCardsFragment = new RecipeCardsFragment();
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("recipe", (Serializable) mRecipeList);
+            recipeCardsFragment.setArguments(bundle);
+            fragmentManager.beginTransaction().add(R.id.frame_fragment_holder, recipeCardsFragment).commit();
+        }
+
+
     }
 
     private void startRecipeDetailsActivityFromWidgetClick(Recipe recipe) {
+        // TODO: this will need to change to start a fragment instead
         Intent intent = new Intent(this, RecipeDetailsActivity.class);
         intent.putExtra(Constants.RECIPE_INTENT_SOURCE, Constants.INTENT_FROM_MAIN_ACTIVITY_CLICK);
         intent.putExtra("clickedRecipe", recipe);
@@ -123,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
             public void onResponse(@NonNull Call<List<Recipe>> call, @NonNull Response<List<Recipe>> response) {
                 List<Recipe> result = response.body();
                 if (result != null) {
-                    mAdapter.setRecipesList(result);
+//                    mAdapter.setRecipesList(result);
                     mRecipeList = result;
                     Log.d("result: ", mRecipeList.toString());
 
@@ -148,11 +169,15 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
     @Override
     public void onItemClick(int position) {
         Recipe recipe = mRecipeList.get(position);
-        // build an Intent to pass recipe information to recipe detail activity
-        Intent intent = new Intent(this, RecipeDetailsActivity.class);
-        intent.putExtra(Constants.RECIPE_INTENT_SOURCE, Constants.INTENT_FROM_MAIN_ACTIVITY_CLICK);
-        intent.putExtra("clickedRecipe", recipe);
-        startActivity(intent);
+        // build an Intent to pass recipe information to StepInstructionFragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        StepsFragment stepsFragment = new StepsFragment();
+        fragmentManager.beginTransaction().replace(R.id.frame_fragment_holder, stepsFragment).commit();
+
+//        Intent intent = new Intent(this, RecipeDetailsActivity.class);
+//        intent.putExtra(Constants.RECIPE_INTENT_SOURCE, Constants.INTENT_FROM_MAIN_ACTIVITY_CLICK);
+//        intent.putExtra("clickedRecipe", recipe);
+//        startActivity(intent);
     }
 
     private class GetRecipeById extends AsyncTask<Void, Void, Recipe> {
