@@ -13,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,7 @@ import java.util.List;
 
 public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.ClickHandler {
 
-    PositionUpdatedListener mCallback;
+//    PositionUpdatedListener mCallback;
 
 //    @BindView(R.id.recipe_step_container)
 //    ConstraintLayout mRecipeStepContainer;
@@ -38,6 +39,10 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
 
     TestViewModel testViewModel;
 
+    private RecyclerView mRecyclerView;
+    private RecipeStepsAdapter mAdapter;
+
+    Recipe mRecipe;
     List<Steps> mRecipeSteps;
     MutableLiveData<List<Steps>> mTestSteps;
     boolean mTwoPane = false;
@@ -45,9 +50,9 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
     public RecipeStepsFragment() {
     }
 
-    public interface PositionUpdatedListener {
-        void updatePosition(int position);
-    }
+//    public interface PositionUpdatedListener {
+//        void updatePosition(int position);
+//    }
 
     @Nullable
     @Override
@@ -55,7 +60,20 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
         View rootView = inflater.inflate(R.layout.fragment_recipe_steps, container, false);
 //        ButterKnife.bind(this, rootView);
 
+        mRecyclerView = rootView.findViewById(R.id.recipe_steps_recyclerView);
+
+        mRecipe = new Recipe();
+
         testViewModel = ViewModelProviders.of(this).get(TestViewModel.class);
+
+        if (getArguments() != null) {
+            Bundle extras = getArguments();
+//            mRecipe = (Recipe) extras.getSerializable("recipe");
+            mRecipe = extras.getParcelable("recipe");
+            mRecipeSteps = mRecipe.getSteps();
+        } else {
+            Toast.makeText(getContext(), "Arguments null", Toast.LENGTH_SHORT).show();
+        }
 
         // Set up ViewModel and observe mRecipeStepsLiveData from it.
         // When it changes, set up the recyclerView stuff...which will update the adapter with the new mRecipeStepsLiveData
@@ -103,46 +121,38 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
 //            }
 //        });
 
-        testViewModel.mTestString.observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                Toast.makeText(getContext(), s, Toast.LENGTH_LONG).show();
-            }
-        });
+//        if (mRecipeSteps == null) {
+//            Toast.makeText(getContext(), "mRecipeSteps was null! Used Bundle", Toast.LENGTH_LONG).show();
+//            Bundle bundle = getArguments();
+//            Recipe recipe = null;
+//            if (bundle != null) {
+//                recipe = bundle.getParcelable("recipe");
+//                mRecipeSteps = recipe.getSteps();
+//                mTwoPane = bundle.getBoolean("twoPane");
+//            }
+//        }
 
-        if (mRecipeSteps == null) {
-            Toast.makeText(getContext(), "mRecipeSteps was null! Used Bundle", Toast.LENGTH_LONG).show();
-            Bundle bundle = getArguments();
-            Recipe recipe = null;
-            if (bundle != null) {
-                recipe = bundle.getParcelable("recipe");
-                mRecipeSteps = recipe.getSteps();
-                mTwoPane = bundle.getBoolean("twoPane");
-            }
-        }
-
-        RecyclerView recyclerView = rootView.findViewById(R.id.recipe_steps_recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setHasFixedSize(true);
-        RecipeStepsAdapter recipeStepsAdapter = new RecipeStepsAdapter(getContext());
-        recyclerView.setAdapter(recipeStepsAdapter);
-        recipeStepsAdapter.AdapterClickListener(this);
-        recipeStepsAdapter.setRecipesSteps(mRecipeSteps);
-
+//        RecyclerView recyclerView = rootView.findViewById(R.id.recipe_steps_recyclerView);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerView.setHasFixedSize(true);
+        mAdapter = new RecipeStepsAdapter(getContext());
+        mRecyclerView.setAdapter(mAdapter);
+        mAdapter.AdapterClickListener(this);
+        mAdapter.setRecipesSteps(mRecipeSteps);
 
         return rootView;
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        Activity activity = (Activity) context;
-        try {
-            mCallback = (PositionUpdatedListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement PositionUpdatedListener");
-        }
-    }
+//    @Override
+//    public void onAttach(Context context) {
+//        super.onAttach(context);
+//        Activity activity = (Activity) context;
+//        try {
+//            mCallback = (PositionUpdatedListener) activity;
+//        } catch (ClassCastException e) {
+//            throw new ClassCastException(activity.toString() + " must implement PositionUpdatedListener");
+//        }
+//    }
 
 
 
@@ -165,17 +175,17 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
             StepInstructionsFragment stepInstructionsFragment = new StepInstructionsFragment();
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
             stepInstructionsFragment.setArguments(bundle);
-            fragmentTransaction.replace(R.id.recipe_step_details_container, stepInstructionsFragment);
+            fragmentTransaction.replace(R.id.frame_fragment_holder, stepInstructionsFragment);
             fragmentTransaction.commit();
 
         } else if (!mTwoPane) {
-            Toast.makeText(getContext(), "Clicked! Single Pane", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getContext(), "Clicked! Single Pane", Toast.LENGTH_SHORT).show();
 
             // Build another fragment and perform a FragmentTransaction
             StepInstructionsFragment stepInstructionsFragment = new StepInstructionsFragment();
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
             stepInstructionsFragment.setArguments(bundle);
-            fragmentTransaction.replace(R.id.fragment_container, stepInstructionsFragment);
+            fragmentTransaction.replace(R.id.frame_fragment_holder, stepInstructionsFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }

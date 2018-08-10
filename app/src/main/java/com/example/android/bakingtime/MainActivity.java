@@ -34,7 +34,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.android.bakingtime.utilities.ApiInterface.BAKING_RECIPE_JSON_URL;
 
-public class MainActivity extends AppCompatActivity implements RecipeCardAdapter.ClickHandler {
+public class MainActivity extends AppCompatActivity {
 
     RecipeDatabase mDatabase;
     RecipeDao mRecipeDao;
@@ -46,16 +46,12 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
     private RecyclerView mRecyclerView;
     private RecipeCardAdapter mAdapter;
     private int recipeId;
+    private boolean setUpNewFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_new);
-
-
-
-
-
+        setContentView(R.layout.activity_main);
 
 //        mRecipeViewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
 
@@ -106,13 +102,7 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
 
         // Create the RecipeCards fragment if there isn't already one created
         if (savedInstanceState == null) {
-            Toast.makeText(this, "created a new RecipeCardsFrag from MA", Toast.LENGTH_SHORT).show();
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            RecipeCardsFragment recipeCardsFragment = new RecipeCardsFragment();
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("recipe", (Serializable) mRecipeList);
-            recipeCardsFragment.setArguments(bundle);
-            fragmentManager.beginTransaction().add(R.id.frame_fragment_holder, recipeCardsFragment).commit();
+            setUpNewFragment = true;
         }
 
 
@@ -120,10 +110,18 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
 
     private void startRecipeDetailsActivityFromWidgetClick(Recipe recipe) {
         // TODO: this will need to change to start a fragment instead
-        Intent intent = new Intent(this, RecipeDetailsActivity.class);
-        intent.putExtra(Constants.RECIPE_INTENT_SOURCE, Constants.INTENT_FROM_MAIN_ACTIVITY_CLICK);
-        intent.putExtra("clickedRecipe", recipe);
-        startActivity(intent);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        RecipeStepsFragment recipeStepsFragment = new RecipeStepsFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("recipe", recipe);
+        recipeStepsFragment.setArguments(bundle);
+        fragmentManager.beginTransaction().add(R.id.frame_fragment_holder, recipeStepsFragment).commit();
+
+
+//        Intent intent = new Intent(this, RecipeDetailsActivity.class);
+//        intent.putExtra(Constants.RECIPE_INTENT_SOURCE, Constants.INTENT_FROM_MAIN_ACTIVITY_CLICK);
+//        intent.putExtra("clickedRecipe", recipe);
+//        startActivity(intent);
 
     }
 
@@ -146,7 +144,9 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                 if (result != null) {
 //                    mAdapter.setRecipesList(result);
                     mRecipeList = result;
-                    Log.d("result: ", mRecipeList.toString());
+                    if (setUpNewFragment) {
+                        setUpRecipeCardsFragment();
+                    }
 
                     // Add all recipes to database
                     // http://androidkt.com/room-persistence-library/
@@ -166,18 +166,14 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         });
     }
 
-    @Override
-    public void onItemClick(int position) {
-        Recipe recipe = mRecipeList.get(position);
-        // build an Intent to pass recipe information to StepInstructionFragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        StepsFragment stepsFragment = new StepsFragment();
-        fragmentManager.beginTransaction().replace(R.id.frame_fragment_holder, stepsFragment).commit();
 
-//        Intent intent = new Intent(this, RecipeDetailsActivity.class);
-//        intent.putExtra(Constants.RECIPE_INTENT_SOURCE, Constants.INTENT_FROM_MAIN_ACTIVITY_CLICK);
-//        intent.putExtra("clickedRecipe", recipe);
-//        startActivity(intent);
+    private void setUpRecipeCardsFragment() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        RecipeCardsFragment recipeCardsFragment = new RecipeCardsFragment();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("recipeList", (Serializable) mRecipeList);
+        recipeCardsFragment.setArguments(bundle);
+        fragmentManager.beginTransaction().add(R.id.frame_fragment_holder, recipeCardsFragment).commit();
     }
 
     private class GetRecipeById extends AsyncTask<Void, Void, Recipe> {
