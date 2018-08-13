@@ -1,7 +1,6 @@
 package com.example.android.bakingtime;
 
 import android.arch.persistence.room.Room;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,11 +11,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.android.bakingtime.adapters.RecipeCardAdapter;
-import com.example.android.bakingtime.database.RecipeDao;
 import com.example.android.bakingtime.database.RecipeDatabase;
 import com.example.android.bakingtime.database.RoomAccess;
 import com.example.android.bakingtime.fragments.RecipeCardsFragment;
-import com.example.android.bakingtime.fragments.StepsFragment;
 import com.example.android.bakingtime.model.Recipe;
 import com.example.android.bakingtime.utilities.ApiInterface;
 import com.example.android.bakingtime.utilities.Constants;
@@ -36,10 +33,8 @@ import static com.example.android.bakingtime.utilities.ApiInterface.BAKING_RECIP
 
 public class MainActivity extends AppCompatActivity {
 
-    RecipeDatabase mDatabase;
-    RecipeDao mRecipeDao;
-
-//    private RecipeViewModel mRecipeViewModel;
+    private FragmentManager fragmentManager;
+    RecipeCardsFragment recipeCardsFragment;
 
     private List<Recipe> mRecipeList;
     private Recipe mRecipe;
@@ -47,75 +42,75 @@ public class MainActivity extends AppCompatActivity {
     private RecipeCardAdapter mAdapter;
     private int recipeId;
     private boolean setUpNewFragment;
+    private boolean isFromWidget;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        mRecipeViewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
+        fragmentManager = getSupportFragmentManager();
 
-        if (getIntent() != null && getIntent().getExtras() != null) {
 
-            if (Objects.equals(getIntent().getStringExtra(Constants.RECIPE_INTENT_SOURCE), Constants.INTENT_FROM_WIDGET_CLICK)) {
-                // TODO: Need to figure out why I'm getting passed the recipe POSITION in the array instead of the actual id.
-                recipeId = getIntent().getIntExtra(Constants.RECIPE_WIDGET_ID, 1);
-                Log.d("IDrecievedByMA: ", String.valueOf(recipeId));
-
-//                RecipeDatabase mRecipeDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, "Recipe_db").allowMainThreadQueries().build();
-//                Recipe recipe = mRecipeDatabase.recipeDao().getRecipeById(recipeId);
-
-                new GetRecipeById().execute();
-
-//                mRecipeViewModel.getRecipe(recipeId).observe(this, new Observer<Recipe>() {
-//                    @Override
-//                    public void onChanged(@Nullable Recipe recipe) {
-//                        mRecipe = recipe;
-//                    }
-//                });
-
-//                startRecipeDetailsActivityFromWidgetClick(mRecipe);
-
-                // SHOULD TRY TO GET RECIPE FROM DATABASE FIRST
-//                List<Recipe> mRecipeList = NetworkUtils.fetchRecipes(getApplicationContext());
-//                recipe = mRecipeList.get(recipeId);
-//                mRecipeSteps = recipe.getSteps();
-            }
-            }
+//        Fragment testFragment = getSupportFragmentManager().findFragmentById(R.id.frame_fragment_holder);
+//        if (testFragment != null) {
+//            Toast.makeText(this, "testFragment wasn't null", Toast.LENGTH_LONG).show();
+//            getSupportFragmentManager().beginTransaction().remove(testFragment).commit();
+//        }
 
         mRecipeList = new ArrayList<>();
-//        mRecyclerView = findViewById(R.id.recipe_cards_recyclerView);
-//
-//        if (findViewById(R.id.activity_main_tablet_layout) != null) {
-//            mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-//        } else {
-//            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        }
-//
-//        mRecyclerView.setHasFixedSize(true);
-//        mAdapter = new RecipeCardAdapter(this);
-//        mRecyclerView.setAdapter(mAdapter);
-//        mAdapter.AdapterClickListener(MainActivity.this);
-//        mAdapter.setRecipesList(mRecipeList);
 
-        fetchRecipes();
-
-        // Create the RecipeCards fragment if there isn't already one created
         if (savedInstanceState == null) {
             setUpNewFragment = true;
+            Log.d("MAIN", "saveInstanceState is null");
+
+            // Check the database for Recipes. If not null then get them, if not then run fetchRecipes to download them.
+            new GetAllRecipesFromDb().execute();
+
+        } else {
+            savedInstanceState.getSerializable("recipeList");
         }
 
 
+
+        if (getIntent() != null && getIntent().getExtras() != null) {
+
+
+//            fragmentManager.beginTransaction().remove(getSupportFragmentManager().findFragmentById(R.id.recipe_steps_recyclerView))
+//                    .commit();
+
+//            fragmentManager.popBackStack();
+
+
+//            for (int i = 0; i < fragmentManager.getBackStackEntryCount(); i++) {
+//            fragmentManager.popBackStack();
+//            }
+
+            if (Objects.equals(getIntent().getStringExtra(Constants.RECIPE_INTENT_SOURCE), Constants.INTENT_FROM_WIDGET_CLICK)) {
+                // TODO: Need to figure out why I'm getting passed the recipe POSITION in the array instead of the actual id.
+
+                isFromWidget = true;
+                clearBackStackTest();
+                fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+                recipeId = getIntent().getIntExtra(Constants.RECIPE_WIDGET_ID, 1);
+                Log.d("IDrecievedByMA: ", String.valueOf(recipeId));
+                new GetRecipeById().execute();
+            }
+        }
+
     }
 
-    private void startRecipeDetailsActivityFromWidgetClick(Recipe recipe) {
-        // TODO: this will need to change to start a fragment instead
+    private void startRecipeStepsFragmentFromWidgetClick(Recipe recipe) {
+        Log.d("MAIN", "startRecipeStepsFragmentFromWidgetClick ran");
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         RecipeStepsFragment recipeStepsFragment = new RecipeStepsFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable("recipe", recipe);
         recipeStepsFragment.setArguments(bundle);
-        fragmentManager.beginTransaction().add(R.id.frame_fragment_holder, recipeStepsFragment).commit();
+        fragmentManager.beginTransaction().replace(R.id.frame_fragment_holder, recipeStepsFragment, "TAG")
+                .commit();
 
 
 //        Intent intent = new Intent(this, RecipeDetailsActivity.class);
@@ -168,12 +163,14 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void setUpRecipeCardsFragment() {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        RecipeCardsFragment recipeCardsFragment = new RecipeCardsFragment();
+        clearBackStack();
+        Toast.makeText(getApplicationContext(), "setUpRecipeCardsFragment", Toast.LENGTH_SHORT).show();
+//        fragmentManager = getSupportFragmentManager();
+        recipeCardsFragment = new RecipeCardsFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable("recipeList", (Serializable) mRecipeList);
         recipeCardsFragment.setArguments(bundle);
-        fragmentManager.beginTransaction().add(R.id.frame_fragment_holder, recipeCardsFragment).commit();
+        fragmentManager.beginTransaction().replace(R.id.frame_fragment_holder, recipeCardsFragment).commit();
     }
 
     private class GetRecipeById extends AsyncTask<Void, Void, Recipe> {
@@ -188,9 +185,49 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Recipe recipe) {
-            startRecipeDetailsActivityFromWidgetClick(recipe);
+            startRecipeStepsFragmentFromWidgetClick(recipe);
         }
     }
 
+    private class GetAllRecipesFromDb extends AsyncTask<Void, Void, List<Recipe>> {
 
+        @Override
+        protected List<Recipe> doInBackground(Void... voids) {
+            RecipeDatabase mDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, "Recipe_db").build();
+            mRecipeList = mDatabase.recipeDao().getAllRecipes();
+            mDatabase.close();
+            return mRecipeList;
+        }
+
+        @Override
+        protected void onPostExecute(List<Recipe> recipeList) {
+            if (recipeList.isEmpty()) {
+                fetchRecipes();
+            } else {
+                mRecipeList = recipeList;
+                if (!isFromWidget) {
+                setUpRecipeCardsFragment();
+                }
+            }
+        }
+    }
+
+    private void clearBackStack(){
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        fragmentManager.popBackStackImmediate();
+    }
+
+    private void clearBackStackTest() {
+        FragmentManager manager = getSupportFragmentManager();
+        if (manager.getBackStackEntryCount() > 0) {
+            FragmentManager.BackStackEntry first = manager.getBackStackEntryAt(0);
+            manager.popBackStack(first.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("recipeList", (Serializable) mRecipeList);
+    }
 }

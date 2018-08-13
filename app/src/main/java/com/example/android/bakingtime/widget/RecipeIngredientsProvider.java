@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import com.example.android.bakingtime.MainActivity;
 import com.example.android.bakingtime.R;
@@ -43,7 +42,6 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
 //        mRecipeList = new ArrayList<Recipe>();
 
         if (mRecipeList.isEmpty()) {
-            Toast.makeText(context,"mRecipeList was null", Toast.LENGTH_SHORT).show();
             try {
                 mRecipeList = new GetAllRecipes().execute().get();
                 Log.d("testRP: ", "newGetAllRecipesRan");

@@ -1,6 +1,5 @@
 package com.example.android.bakingtime;
 
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.bakingtime.model.Steps;
 import com.example.android.bakingtime.utilities.NetworkUtils;
@@ -31,6 +29,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
+import java.io.Serializable;
 import java.util.List;
 
 import butterknife.BindView;
@@ -71,7 +70,34 @@ public class StepInstructionsFragment extends Fragment {
     int position;
     boolean mTwoPane;
 
-    public StepInstructionsFragment() {
+//    public StepInstructionsFragment() {
+//    }
+
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        position = 0;
+        if (savedInstanceState != null) {
+            mRecipeSteps = (List<Steps>) savedInstanceState.getSerializable("recipeSteps");
+            mInstructions = savedInstanceState.getParcelable("stepInstructions");
+            position = savedInstanceState.getInt("position");
+        } else {
+            Bundle bundle = getArguments();
+            if (bundle != null) {
+                mTwoPane = bundle.getBoolean("twoPane", false);
+                mRecipeSteps = bundle.getParcelableArrayList("recipeSteps");
+
+                if (!mTwoPane) {
+                    // LANDSCAPE/TABLET MODE
+                    position = bundle.getInt("position");
+                } else {
+                    // PORTRAIT MODE
+                    position = bundle.getInt("position");
+                }
+                mInstructions = mRecipeSteps.get(position);
+            }
+        }
     }
 
     @Nullable
@@ -80,18 +106,20 @@ public class StepInstructionsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_step_instructions_layout, container, false);
         ButterKnife.bind(this, rootView);
 
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            mRecipeSteps = bundle.getParcelableArrayList("recipeSteps");
-            mTwoPane = bundle.getBoolean("twoPane", false);
-            if (!mTwoPane) {
-                position = bundle.getInt("position");
-            } else {
-                position = 0;
-                mButtonContainer.setVisibility(View.GONE);
-            }
-            mInstructions = mRecipeSteps.get(position);
-        }
+//        Bundle bundle = getArguments();
+//        if (bundle != null) {
+//            mTwoPane = bundle.getBoolean("twoPane", false);
+//            mRecipeSteps = bundle.getParcelableArrayList("recipeSteps");
+//
+//            if (!mTwoPane) {
+//                // LANDSCAPE/TABLET MODE
+//                position = bundle.getInt("position");
+//            } else {
+//                // PORTRAIT MODE
+//                position = bundle.getInt("position");
+//            }
+//            mInstructions = mRecipeSteps.get(position);
+//        }
 
 
 
@@ -126,6 +154,7 @@ public class StepInstructionsFragment extends Fragment {
             TrackSelector trackSelector = new DefaultTrackSelector();
             LoadControl loadControl = new DefaultLoadControl();
             mExoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, loadControl);
+            mPlayerView.setUseController(true);
             mPlayerView.setPlayer(mExoPlayer);
             // Prepare the MediaSource
             String userAgent = "temp";
@@ -155,8 +184,13 @@ public class StepInstructionsFragment extends Fragment {
             initializePlayer(NetworkUtils.convertStringToUri(mInstructions.getVideoURL()));
         } else {
             // replace exoPlayer with image
-            Bitmap testImage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_banana);
-            mPlayerView.setDefaultArtwork(testImage);
+            releasePlayer();
+            TrackSelector trackSelector = new DefaultTrackSelector();
+            mExoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector);
+            mPlayerView.setUseController(false);
+            mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource(getResources(), R.drawable.no_video));
+            mPlayerView.setPlayer(mExoPlayer);
+
         }
     }
 
@@ -178,13 +212,28 @@ public class StepInstructionsFragment extends Fragment {
         updateData();
     }
 
-    protected void positionUpdate(int newPosition) {
-        Toast.makeText(getContext(), "positionUpdate Ran!", Toast.LENGTH_SHORT).show();
+//    protected void positionUpdate(int newPosition) {
+//        Toast.makeText(getContext(), "positionUpdate Ran!", Toast.LENGTH_SHORT).show();
+//        position = newPosition;
+//        updateData();
+//    }
+
+    public void positionUpdateFromInterface(int newPosition) {
         position = newPosition;
+        mInstructions = mRecipeSteps.get(position);
+        releasePlayer();
         updateData();
     }
 
-//    @Override
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("recipeSteps", (Serializable) mRecipeSteps);
+        outState.putParcelable("stepInstructions", mInstructions);
+        outState.putInt("position", position);
+    }
+
+    //    @Override
 //    public void onConfigurationChanged(Configuration newConfig) {
 //        super.onConfigurationChanged(newConfig);
 //
@@ -206,4 +255,5 @@ public class StepInstructionsFragment extends Fragment {
 //            params.height = LayoutParams.WRAP_CONTENT;
 //        }
 //    }
+
 }

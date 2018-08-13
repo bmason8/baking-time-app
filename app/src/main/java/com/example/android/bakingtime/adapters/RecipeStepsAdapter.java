@@ -53,6 +53,14 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<ViewHolder> {
         public void onClick(View view) {
             int position = getAdapterPosition();
             mClickListener.onItemClick(position);
+
+
+
+            if (view.isSelected()) {
+                view.setSelected(false);
+            } else {
+                view.setSelected(true);
+            }
         }
     }
 
@@ -66,17 +74,24 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecipeStepsAdapter.ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(@NonNull final RecipeStepsAdapter.ViewHolder viewHolder, int position) {
         Steps steps = mRecipeSteps.get(position);
         String recipeStep = String.valueOf(steps.getId() + 1);
         viewHolder.recipeStepTextView.setText(recipeStep);
         viewHolder.recipeNameTextView.setText(steps.getShortDescription());
 
+//        viewHolder.recipeStepTextView.setTextColor(Color.BLACK);
+//        viewHolder.recipeNameTextView.setTextColor(Color.BLACK);
+//        viewHolder.mContainerLayout.setBackgroundResource(R.drawable.round_corners);
+
 //        // update style
 //        viewHolder.mContainerLayout.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
-//                testPosition = position;
+////                testPosition = position;
+////                viewHolder.recipeStepTextView.setTextColor(Color.BLUE);
+////                viewHolder.recipeNameTextView.setTextColor(Color.BLUE);
+////                viewHolder.mContainerLayout.setBackgroundResource(R.drawable.round_corners_selected);
 //            }
 //        });
 //        if (testPosition == position) {

@@ -8,11 +8,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.android.bakingtime.R;
 import com.example.android.bakingtime.RecipeStepsFragment;
@@ -30,11 +28,16 @@ public class RecipeCardsFragment extends Fragment implements RecipeCardAdapter.C
     private RecyclerView mRecyclerView;
     private RecipeCardAdapter mAdapter;
     private int recipeId;
-
+    private boolean landscapeMode;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            mRecipeList = (List<Recipe>) savedInstanceState.getSerializable("recipeList");
+        } else {
+            mRecipeList = new ArrayList<>();
+        }
     }
 
     @Nullable
@@ -42,7 +45,12 @@ public class RecipeCardsFragment extends Fragment implements RecipeCardAdapter.C
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_recipe_cards, container, false);
 
-        mRecipeList = new ArrayList<>();
+        if (rootView.findViewById(R.id.tablet_container) != null) {
+            landscapeMode = true;
+        } else {
+            landscapeMode = false;
+        }
+
 
         if (getArguments() != null) {
             Bundle extras = getArguments();
@@ -68,13 +76,20 @@ public class RecipeCardsFragment extends Fragment implements RecipeCardAdapter.C
 
     @Override
     public void onItemClick(int position) {
-        mRecipe = mRecipeList.get(position);
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        RecipeStepsFragment recipeStepsFragment = new RecipeStepsFragment();
         Bundle bundle = new Bundle();
-        bundle.putParcelable("recipe", mRecipe);
-        recipeStepsFragment.setArguments(bundle);
-        fragmentManager.beginTransaction().replace(R.id.frame_fragment_holder, recipeStepsFragment).
-        addToBackStack(null).commit();
+        // if in tablet/landscape mode then set up both fragments
+            mRecipe = mRecipeList.get(position);
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            RecipeStepsFragment recipeStepsFragment = new RecipeStepsFragment();
+            bundle.putParcelable("recipe", mRecipe);
+            recipeStepsFragment.setArguments(bundle);
+            fragmentManager.beginTransaction().replace(R.id.frame_fragment_holder, recipeStepsFragment, "TAG").
+                    addToBackStack(null).commit();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("recipeList", (Serializable) mRecipeList);
     }
 }
