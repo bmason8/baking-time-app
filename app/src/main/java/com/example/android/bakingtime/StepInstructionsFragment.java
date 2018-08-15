@@ -58,7 +58,7 @@ public class StepInstructionsFragment extends Fragment {
     TextView mShortDescription;
     @BindView(R.id.description)
     TextView mDescription;
-    @BindView(R.id.cardView)
+    @BindView(R.id.button_container_cdv)
     CardView mButtonCardView;
     @BindView(R.id.exo_player_frame)
     FrameLayout mExoPlayerFrame;
@@ -68,7 +68,7 @@ public class StepInstructionsFragment extends Fragment {
     private Steps mInstructions;
     private List<Steps> mRecipeSteps;
     int position;
-    boolean mTwoPane;
+    boolean mTwoPane, mSplitView;
 
 //    public StepInstructionsFragment() {
 //    }
@@ -87,6 +87,7 @@ public class StepInstructionsFragment extends Fragment {
             if (bundle != null) {
                 mTwoPane = bundle.getBoolean("twoPane", false);
                 mRecipeSteps = bundle.getParcelableArrayList("recipeSteps");
+                mSplitView = bundle.getBoolean("splitView", false);
 
                 if (!mTwoPane) {
                     // LANDSCAPE/TABLET MODE
@@ -105,6 +106,12 @@ public class StepInstructionsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_step_instructions_layout, container, false);
         ButterKnife.bind(this, rootView);
+
+        if (mSplitView) {
+            mButtonCardView.setVisibility(View.GONE);
+        } else {
+            mButtonCardView.setVisibility(View.VISIBLE);
+        }
 
 //        Bundle bundle = getArguments();
 //        if (bundle != null) {

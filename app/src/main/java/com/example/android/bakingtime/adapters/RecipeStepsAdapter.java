@@ -21,7 +21,6 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<ViewHolder> {
     private final Context mContext;
     private final ArrayList<Steps> mRecipeSteps;
     private RecipeStepsAdapter.ClickHandler mClickListener;
-    private int testPosition;
 
     public interface ClickHandler {
         void onItemClick(int position);
@@ -54,13 +53,11 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<ViewHolder> {
             int position = getAdapterPosition();
             mClickListener.onItemClick(position);
 
-
-
-            if (view.isSelected()) {
-                view.setSelected(false);
-            } else {
-                view.setSelected(true);
-            }
+//            if (view.isSelected()) {
+//                view.setSelected(false);
+//            } else {
+//                view.setSelected(true);
+//            }
         }
     }
 
@@ -68,7 +65,7 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<ViewHolder> {
     @NonNull
     @Override
     public RecipeStepsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.recipe_step_layout, viewGroup, false);
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.recipe_step_item, viewGroup, false);
         final RecipeStepsAdapter.ViewHolder mViewHolder = new RecipeStepsAdapter.ViewHolder(view);
         return mViewHolder;
     }
@@ -80,6 +77,7 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<ViewHolder> {
         viewHolder.recipeStepTextView.setText(recipeStep);
         viewHolder.recipeNameTextView.setText(steps.getShortDescription());
 
+
 //        viewHolder.recipeStepTextView.setTextColor(Color.BLACK);
 //        viewHolder.recipeNameTextView.setTextColor(Color.BLACK);
 //        viewHolder.mContainerLayout.setBackgroundResource(R.drawable.round_corners);
@@ -88,6 +86,7 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<ViewHolder> {
 //        viewHolder.mContainerLayout.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
+//                viewHolder.mContainerLayout.setSelected(true);
 ////                testPosition = position;
 ////                viewHolder.recipeStepTextView.setTextColor(Color.BLUE);
 ////                viewHolder.recipeNameTextView.setTextColor(Color.BLUE);

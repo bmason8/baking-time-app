@@ -87,18 +87,16 @@ public class MainActivity extends AppCompatActivity {
 //            }
 
             if (Objects.equals(getIntent().getStringExtra(Constants.RECIPE_INTENT_SOURCE), Constants.INTENT_FROM_WIDGET_CLICK)) {
-                // TODO: Need to figure out why I'm getting passed the recipe POSITION in the array instead of the actual id.
 
                 isFromWidget = true;
                 clearBackStackTest();
-                fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+//                fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
                 recipeId = getIntent().getIntExtra(Constants.RECIPE_WIDGET_ID, 1);
                 Log.d("IDrecievedByMA: ", String.valueOf(recipeId));
                 new GetRecipeById().execute();
             }
         }
-
     }
 
     private void startRecipeStepsFragmentFromWidgetClick(Recipe recipe) {

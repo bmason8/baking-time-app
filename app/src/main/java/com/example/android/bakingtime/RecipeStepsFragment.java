@@ -84,6 +84,7 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
             // set up recipe step details fragment
             Bundle bundle = new Bundle();
             bundle.putParcelableArrayList("recipeSteps", (ArrayList<? extends Parcelable>) mRecipeSteps);
+            bundle.putBoolean("splitView", true);
             stepInstructionsFragment = new StepInstructionsFragment();
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
             stepInstructionsFragment.setArguments(bundle);
