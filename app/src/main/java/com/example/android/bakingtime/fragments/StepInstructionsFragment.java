@@ -1,4 +1,4 @@
-package com.example.android.bakingtime;
+package com.example.android.bakingtime.fragments;
 
 import android.content.res.Configuration;
 import android.graphics.BitmapFactory;
@@ -18,6 +18,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.android.bakingtime.R;
 import com.example.android.bakingtime.model.Steps;
 import com.example.android.bakingtime.utilities.NetworkUtils;
 import com.google.android.exoplayer2.DefaultLoadControl;

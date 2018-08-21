@@ -52,13 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentManager = getSupportFragmentManager();
 
-
-//        Fragment testFragment = getSupportFragmentManager().findFragmentById(R.id.frame_fragment_holder);
-//        if (testFragment != null) {
-//            Toast.makeText(this, "testFragment wasn't null", Toast.LENGTH_LONG).show();
-//            getSupportFragmentManager().beginTransaction().remove(testFragment).commit();
-//        }
-
         mRecipeList = new ArrayList<>();
 
         if (savedInstanceState == null) {
@@ -75,17 +68,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         if (getIntent() != null && getIntent().getExtras() != null) {
-
-
-//            fragmentManager.beginTransaction().remove(getSupportFragmentManager().findFragmentById(R.id.recipe_steps_recyclerView))
-//                    .commit();
-
-//            fragmentManager.popBackStack();
-
-
-//            for (int i = 0; i < fragmentManager.getBackStackEntryCount(); i++) {
-//            fragmentManager.popBackStack();
-//            }
 
             if (Objects.equals(getIntent().getStringExtra(Constants.RECIPE_INTENT_SOURCE), Constants.INTENT_FROM_WIDGET_CLICK)) {
 
@@ -110,13 +92,6 @@ public class MainActivity extends AppCompatActivity {
         recipeStepsFragment.setArguments(bundle);
         fragmentManager.beginTransaction().replace(R.id.frame_fragment_holder, recipeStepsFragment, "TAG")
                 .commit();
-
-
-//        Intent intent = new Intent(this, RecipeDetailsActivity.class);
-//        intent.putExtra(Constants.RECIPE_INTENT_SOURCE, Constants.INTENT_FROM_MAIN_ACTIVITY_CLICK);
-//        intent.putExtra("clickedRecipe", recipe);
-//        startActivity(intent);
-
     }
 
     private void fetchRecipes() {

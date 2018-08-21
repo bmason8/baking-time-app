@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.android.bakingtime.R;
-import com.example.android.bakingtime.StepInstructionsFragment;
 import com.example.android.bakingtime.adapters.RecipeIngredientsAdapter;
 import com.example.android.bakingtime.adapters.RecipeStepsAdapter;
 import com.example.android.bakingtime.model.Ingredients;
