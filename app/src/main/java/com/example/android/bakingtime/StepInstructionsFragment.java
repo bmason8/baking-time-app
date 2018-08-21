@@ -17,7 +17,6 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.bakingtime.model.Steps;
 import com.example.android.bakingtime.utilities.NetworkUtils;
@@ -34,7 +33,6 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
 import java.io.Serializable;
-import java.net.URI;
 import java.util.List;
 
 import butterknife.BindView;
@@ -69,7 +67,6 @@ public class StepInstructionsFragment extends Fragment {
     FrameLayout mExoPlayerFrame;
 
     private SimpleExoPlayer mExoPlayer;
-//    private SimpleExoPlayerView mPlayerView;
     private Steps mInstructions;
     private List<Steps> mRecipeSteps;
     int position;
@@ -126,11 +123,11 @@ public class StepInstructionsFragment extends Fragment {
         releasePlayer();
     }
 
-//    @Override
-//    public void onStop() {
-//        super.onStop();
-//        releasePlayer();
-//    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        releasePlayer();
+    }
 
 //    @Override
 //    public void onResume() {
@@ -214,6 +211,7 @@ public class StepInstructionsFragment extends Fragment {
         updateData();
     }
 
+    // TODO: Rename this...it's not an actual interface
     public void positionUpdateFromInterface(int newPosition) {
         position = newPosition;
         mInstructions = mRecipeSteps.get(position);
@@ -247,28 +245,4 @@ public class StepInstructionsFragment extends Fragment {
             }
         }
     }
-
-    //    @Override
-//    public void onConfigurationChanged(Configuration newConfig) {
-//        super.onConfigurationChanged(newConfig);
-//
-//        Toast.makeText(getContext(), "onConfigurationChanged", Toast.LENGTH_SHORT).show();
-//
-//        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//            mDescription.setVisibility(View.GONE);
-//            mShortDescription.setVisibility(View.GONE);
-//            mButtonCardView.setVisibility(View.GONE);
-//            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mExoPlayerFrame.getLayoutParams();
-//            params.width = LayoutParams.MATCH_PARENT;
-//            params.height = LayoutParams.MATCH_PARENT;
-//        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-//            mDescription.setVisibility(View.VISIBLE);
-//            mShortDescription.setVisibility(View.VISIBLE);
-//            mButtonCardView.setVisibility(View.VISIBLE);
-//            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mExoPlayerFrame.getLayoutParams();
-//            params.width = LayoutParams.MATCH_PARENT;
-//            params.height = LayoutParams.WRAP_CONTENT;
-//        }
-//    }
-
 }

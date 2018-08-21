@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.android.bakingtime.R;
-import com.example.android.bakingtime.RecipeStepsFragment;
 import com.example.android.bakingtime.adapters.RecipeCardAdapter;
 import com.example.android.bakingtime.model.Recipe;
 

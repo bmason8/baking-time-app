@@ -1,4 +1,4 @@
-package com.example.android.bakingtime;
+package com.example.android.bakingtime.fragments;
 
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -8,12 +8,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.android.bakingtime.R;
+import com.example.android.bakingtime.StepInstructionsFragment;
+import com.example.android.bakingtime.adapters.RecipeIngredientsAdapter;
 import com.example.android.bakingtime.adapters.RecipeStepsAdapter;
+import com.example.android.bakingtime.model.Ingredients;
 import com.example.android.bakingtime.model.Recipe;
 import com.example.android.bakingtime.model.Steps;
 
@@ -33,23 +38,26 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
     private RecipeStepsAdapter mAdapter;
     private int mPosition;
 
+    private RecyclerView mIngredientListRecyclerView;
+    private RecipeIngredientsAdapter mIngredientsAdapter;
+    List<Ingredients> mIngredients;
+
     StepInstructionsFragment stepInstructionsFragment;
 
     Recipe mRecipe;
     List<Steps> mRecipeSteps;
     boolean mTwoPane = false;
 
-//    public RecipeStepsFragment() {
-//    }
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mRecipe = new Recipe();
+        mIngredients = new ArrayList<>();
 
         if (savedInstanceState != null) {
             mRecipeSteps = savedInstanceState.getParcelableArrayList("recipeSteps");
             mPosition = savedInstanceState.getInt("position");
+            mIngredients = savedInstanceState.getParcelableArrayList("ingredientList");
         } else {
 
             if (getArguments() != null) {
@@ -57,6 +65,8 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
 //            mRecipe = (Recipe) extras.getSerializable("recipe");
                 mRecipe = extras.getParcelable("recipe");
                 mRecipeSteps = mRecipe.getSteps();
+                mIngredients = mRecipe.getIngredients();
+                Log.d("ingredients", mIngredients.get(0).getIngredient());
             } else {
                 Toast.makeText(getContext(), "Arguments null", Toast.LENGTH_SHORT).show();
             }
@@ -72,10 +82,21 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
         // set up landscape mode if correct view is loaded
         if (rootView.findViewById(R.id.tablet_container) != null) {
             mTwoPane = true;
+
+            // set up ingredient list recyclerView
+            mIngredientListRecyclerView = rootView.findViewById(R.id.recipe_ingredients_recyclerView);
+            RecyclerView.LayoutManager ingredientsLayoutManager = new LinearLayoutManager(getContext());
+            mIngredientListRecyclerView.setLayoutManager(ingredientsLayoutManager);
+//            mIngredientListRecyclerView.setHasFixedSize(false);
+            mIngredientsAdapter = new RecipeIngredientsAdapter(getContext());
+            mIngredientListRecyclerView.setAdapter(mIngredientsAdapter);
+            mIngredientsAdapter.setIngredientsList(mIngredients);
+
             // set up recyclerView for recipe steps
             mRecyclerView = rootView.findViewById(R.id.recipe_steps_recyclerView);
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-            mRecyclerView.setHasFixedSize(true);
+            RecyclerView.LayoutManager stepsLayoutManager = new LinearLayoutManager(getContext());
+            mRecyclerView.setLayoutManager(stepsLayoutManager);
+//            mRecyclerView.setHasFixedSize(true);
             mAdapter = new RecipeStepsAdapter(getContext());
             mRecyclerView.setAdapter(mAdapter);
             mAdapter.AdapterClickListener(this);
@@ -95,11 +116,19 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
             mTwoPane = false;
             mRecyclerView = rootView.findViewById(R.id.recipe_steps_recyclerView);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-            mRecyclerView.setHasFixedSize(true);
+//            mRecyclerView.setHasFixedSize(true);
             mAdapter = new RecipeStepsAdapter(getContext());
             mRecyclerView.setAdapter(mAdapter);
             mAdapter.AdapterClickListener(this);
             mAdapter.setRecipesSteps(mRecipeSteps);
+
+            // set up ingredient list recyclerView
+            mIngredientListRecyclerView = rootView.findViewById(R.id.recipe_ingredients_recyclerView);
+            mIngredientListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+//            mIngredientListRecyclerView.setHasFixedSize(false);
+            mIngredientsAdapter = new RecipeIngredientsAdapter(getContext());
+            mIngredientListRecyclerView.setAdapter(mIngredientsAdapter);
+            mIngredientsAdapter.setIngredientsList(mIngredients);
         }
 
         return rootView;
@@ -144,12 +173,18 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("recipeSteps", (ArrayList<? extends Parcelable>) mRecipeSteps);
         outState.putInt("position", mPosition);
+        outState.putParcelableArrayList("ingredientList", (ArrayList<? extends Parcelable>) mIngredients);
     }
 
-    //    private void updateLookOfSelectedStep() {
-//        mStepDescription.setTextColor(Color.WHITE);
-//        mStepNumber.setTextColor(Color.WHITE);
-//        mRecipeStepContainer.setBackgroundResource(R.drawable.round_corners_selected);
-//
-//    }
+
+    private void setUpIngredientListRecyclerView() {
+        // set up ingredient list recyclerView
+        mIngredientListRecyclerView = getActivity().findViewById(R.id.recipe_ingredients_recyclerView);
+        mIngredientListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+//            mIngredientListRecyclerView.setHasFixedSize(false);
+        mIngredientsAdapter = new RecipeIngredientsAdapter(getContext());
+        mIngredientListRecyclerView.setAdapter(mIngredientsAdapter);
+        mIngredientsAdapter.setIngredientsList(mIngredients);
+    }
+
 }
