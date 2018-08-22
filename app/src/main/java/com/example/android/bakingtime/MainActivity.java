@@ -4,6 +4,7 @@ import android.arch.persistence.room.Room;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.test.espresso.idling.CountingIdlingResource;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +17,7 @@ import com.example.android.bakingtime.database.RoomAccess;
 import com.example.android.bakingtime.fragments.RecipeCardsFragment;
 import com.example.android.bakingtime.fragments.RecipeStepsFragment;
 import com.example.android.bakingtime.model.Recipe;
+import com.example.android.bakingtime.testing.EspressoIdlingResource;
 import com.example.android.bakingtime.utilities.ApiInterface;
 import com.example.android.bakingtime.utilities.Constants;
 
@@ -33,6 +35,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static com.example.android.bakingtime.utilities.ApiInterface.BAKING_RECIPE_JSON_URL;
 
 public class MainActivity extends AppCompatActivity {
+
+    CountingIdlingResource idlingResource = new CountingIdlingResource("DATA_LOADER");
 
     private FragmentManager fragmentManager;
     RecipeCardsFragment recipeCardsFragment;
@@ -58,13 +62,13 @@ public class MainActivity extends AppCompatActivity {
             setUpNewFragment = true;
             Log.d("MAIN", "saveInstanceState is null");
 
+            EspressoIdlingResource.increment();
             // Check the database for Recipes. If not null then get them, if not then run fetchRecipes to download them.
             new GetAllRecipesFromDb().execute();
 
         } else {
             savedInstanceState.getSerializable("recipeList");
         }
-
 
 
         if (getIntent() != null && getIntent().getExtras() != null) {
@@ -181,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
                 mRecipeList = recipeList;
                 if (!isFromWidget) {
                 setUpRecipeCardsFragment();
+                    EspressoIdlingResource.decrement();
                 }
             }
         }

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="4dp"
-    android:id="@+id/recipe_cards_table_layout">
+    android:id="@+id/recipe_cards_tablet_layout">
 
     <FrameLayout
         android:id="@+id/frame_fragment_holder"

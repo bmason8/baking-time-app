@@ -58,7 +58,7 @@ public class RecipeCardsFragment extends Fragment implements RecipeCardAdapter.C
 
         mRecyclerView = rootView.findViewById(R.id.recipe_cards_recyclerView);
 
-        if (rootView.findViewById(R.id.recipe_cards_table_layout) != null) {
+        if (rootView.findViewById(R.id.recipe_cards_tablet_layout) != null) {
             mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         } else {
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
