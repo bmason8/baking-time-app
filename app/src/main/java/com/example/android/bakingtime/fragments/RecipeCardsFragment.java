@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.android.bakingtime.MainActivity;
 import com.example.android.bakingtime.R;
 import com.example.android.bakingtime.adapters.RecipeCardAdapter;
 import com.example.android.bakingtime.model.Recipe;
@@ -20,7 +21,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecipeCardsFragment extends Fragment implements RecipeCardAdapter.ClickHandler {
+public class RecipeCardsFragment extends Fragment implements RecipeCardAdapter.ClickHandler, FragmentManager.OnBackStackChangedListener {
 
     private List<Recipe> mRecipeList;
     private Recipe mRecipe;
@@ -31,6 +32,11 @@ public class RecipeCardsFragment extends Fragment implements RecipeCardAdapter.C
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Used this page for adding up navigation buttons and functionality
+        // https://stackoverflow.com/questions/13086840/actionbar-up-navigation-with-fragments
+        getActivity().getSupportFragmentManager().addOnBackStackChangedListener(this);
+
         if (savedInstanceState != null) {
             mRecipeList = (List<Recipe>) savedInstanceState.getSerializable("recipeList");
         } else {
@@ -89,5 +95,14 @@ public class RecipeCardsFragment extends Fragment implements RecipeCardAdapter.C
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable("recipeList", (Serializable) mRecipeList);
+    }
+
+    // Used this page for adding up navigation buttons and functionality
+    // https://stackoverflow.com/questions/13086840/actionbar-up-navigation-with-fragments
+    @Override
+    public void onBackStackChanged() {
+        if(getActivity().getSupportFragmentManager().getBackStackEntryCount() < 1) {
+            ((MainActivity)getActivity()).hideUpButton();
+        }
     }
 }

@@ -5,13 +5,16 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.android.bakingtime.MainActivity;
 import com.example.android.bakingtime.R;
 import com.example.android.bakingtime.adapters.RecipeIngredientsAdapter;
 import com.example.android.bakingtime.adapters.RecipeStepsAdapter;
@@ -43,6 +46,8 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
         super.onCreate(savedInstanceState);
         mRecipe = new Recipe();
         mIngredients = new ArrayList<>();
+
+        ((MainActivity)getActivity()).showUpButton();
 
         if (savedInstanceState != null) {
             mRecipeSteps = savedInstanceState.getParcelableArrayList("recipeSteps");
@@ -148,15 +153,13 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
         outState.putParcelableArrayList("ingredientList", (ArrayList<? extends Parcelable>) mIngredients);
     }
 
-
-    private void setUpIngredientListRecyclerView() {
-        // set up ingredient list recyclerView
-        mIngredientListRecyclerView = getActivity().findViewById(R.id.recipe_ingredients_recyclerView);
-        mIngredientListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-//            mIngredientListRecyclerView.setHasFixedSize(false);
-        mIngredientsAdapter = new RecipeIngredientsAdapter(getContext());
-        mIngredientListRecyclerView.setAdapter(mIngredientsAdapter);
-        mIngredientsAdapter.setIngredientsList(mIngredients);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                getFragmentManager().popBackStack();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
-
 }

@@ -9,13 +9,16 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.bakingtime.R;
 import com.example.android.bakingtime.model.Steps;
@@ -176,6 +179,8 @@ public class StepInstructionsFragment extends Fragment {
             mPlayerView.setUseController(false);
             mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource(getResources(), R.drawable.no_video));
             mPlayerView.setPlayer(mExoPlayer);
+//            Toast.makeText(getContext(), String.valueOf(mPlayWhenReady) + " update", Toast.LENGTH_SHORT).show();
+            mExoPlayer.setPlayWhenReady(true);
         }
     }
 
