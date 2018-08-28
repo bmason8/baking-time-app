@@ -5,4 +5,6 @@
     <string name="recipe_image">Recipe Image</string>
     <string name="previous_button">Previous button</string>
     <string name="next_button">Next button</string>
+    <string name="failed_to_fetch_error">Failed to fetch recipes</string>
+    <string name="recipe_db_name">Recipe_db</string>
 </resources>

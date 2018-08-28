@@ -8,11 +8,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.android.bakingtime.R;
 import com.example.android.bakingtime.adapters.RecipeIngredientsAdapter;
@@ -25,13 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.ClickHandler {
-
-//    @BindView(R.id.recipe_step_container)
-//    ConstraintLayout mRecipeStepContainer;
-//    @BindView(R.id.step_description)
-//    TextView mStepDescription;
-//    @BindView(R.id.step_number)
-//    TextView mStepNumber;
 
     private RecyclerView mRecyclerView;
     private RecipeStepsAdapter mAdapter;
@@ -65,9 +56,6 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
                 mRecipe = extras.getParcelable("recipe");
                 mRecipeSteps = mRecipe.getSteps();
                 mIngredients = mRecipe.getIngredients();
-                Log.d("ingredients", mIngredients.get(0).getIngredient());
-            } else {
-                Toast.makeText(getContext(), "Arguments null", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -76,7 +64,6 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_recipe_steps, container, false);
-//        ButterKnife.bind(this, rootView);
 
         // set up landscape mode if correct view is loaded
         if (rootView.findViewById(R.id.tablet_container) != null) {
@@ -86,7 +73,6 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
             mIngredientListRecyclerView = rootView.findViewById(R.id.recipe_ingredients_recyclerView);
             RecyclerView.LayoutManager ingredientsLayoutManager = new LinearLayoutManager(getContext());
             mIngredientListRecyclerView.setLayoutManager(ingredientsLayoutManager);
-//            mIngredientListRecyclerView.setHasFixedSize(false);
             mIngredientsAdapter = new RecipeIngredientsAdapter(getContext());
             mIngredientListRecyclerView.setAdapter(mIngredientsAdapter);
             mIngredientsAdapter.setIngredientsList(mIngredients);
@@ -95,7 +81,6 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
             mRecyclerView = rootView.findViewById(R.id.recipe_steps_recyclerView);
             RecyclerView.LayoutManager stepsLayoutManager = new LinearLayoutManager(getContext());
             mRecyclerView.setLayoutManager(stepsLayoutManager);
-//            mRecyclerView.setHasFixedSize(true);
             mAdapter = new RecipeStepsAdapter(getContext());
             mRecyclerView.setAdapter(mAdapter);
             mAdapter.AdapterClickListener(this);
@@ -109,13 +94,11 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
             stepInstructionsFragment.setArguments(bundle);
             fragmentTransaction.replace(R.id.recipe_step_details_container, stepInstructionsFragment);
-//            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         } else {
             mTwoPane = false;
             mRecyclerView = rootView.findViewById(R.id.recipe_steps_recyclerView);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-//            mRecyclerView.setHasFixedSize(true);
             mAdapter = new RecipeStepsAdapter(getContext());
             mRecyclerView.setAdapter(mAdapter);
             mAdapter.AdapterClickListener(this);
@@ -124,7 +107,6 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
             // set up ingredient list recyclerView
             mIngredientListRecyclerView = rootView.findViewById(R.id.recipe_ingredients_recyclerView);
             mIngredientListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-//            mIngredientListRecyclerView.setHasFixedSize(false);
             mIngredientsAdapter = new RecipeIngredientsAdapter(getContext());
             mIngredientListRecyclerView.setAdapter(mIngredientsAdapter);
             mIngredientsAdapter.setIngredientsList(mIngredients);
@@ -143,18 +125,9 @@ public class RecipeStepsFragment extends Fragment implements RecipeStepsAdapter.
         bundle.putBoolean("twoPane", mTwoPane);
         mPosition = position;
 
-        // Update the look of the selected step
-
-
         if (mTwoPane) {
             // maybe don't recreate the fragment each time...try just passing the new position since it already has the array of steps
-            stepInstructionsFragment.positionUpdateFromInterface(position);
-
-//            StepInstructionsFragment stepInstructionsFragment = new StepInstructionsFragment();
-//            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-//            stepInstructionsFragment.setArguments(bundle);
-//            fragmentTransaction.replace(R.id.recipe_step_details_container, stepInstructionsFragment);
-//            fragmentTransaction.commit();
+            stepInstructionsFragment.updatePosition(position);
 
         } else {
             // Build another fragment and perform a FragmentTransaction

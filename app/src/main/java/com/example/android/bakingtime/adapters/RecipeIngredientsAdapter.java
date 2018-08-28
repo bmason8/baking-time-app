@@ -53,15 +53,6 @@ public class RecipeIngredientsAdapter extends RecyclerView.Adapter<RecipeIngredi
         viewHolder.ingredientQuantity.setText(ingredientQuantityDouble);
     }
 
-//    @Override
-//    public void onBindViewHolder(@NonNull RecipeIngredientsAdapter.ViewHolder viewHolder, int position) {
-//        Ingredients ingredients = mIngredientsList.get(position);
-//        viewHolder.ingredientName.setText(ingredients.getIngredient());
-//        viewHolder.ingredientMeasurement.setText(ingredients.getMeasure());
-//        String ingredientQuantityDouble = String.valueOf(ingredients.getQuantity());
-//        viewHolder.ingredientQuantity.setText(ingredientQuantityDouble);
-//    }
-
     @Override
     public int getItemCount() {
         return mIngredientsList.size();

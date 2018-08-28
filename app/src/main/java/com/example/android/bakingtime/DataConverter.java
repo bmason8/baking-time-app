@@ -27,7 +27,7 @@ public class DataConverter implements Serializable {
         return json;
     }
 
-    @TypeConverter // note this annotation
+    @TypeConverter
     public List<Ingredients> toIngredientsList(String optionValuesString) {
         if (optionValuesString == null) {
             return (null);

@@ -29,13 +29,15 @@ public class ClickNextAndPreviousRecipeStep {
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule
             = new ActivityTestRule<>(MainActivity.class);
-    private MainActivity mMainActivity = null;
+            private MainActivity mMainActivity = null;
 
     @Before
     public void setUp() throws Exception {
         mMainActivity = mActivityTestRule.getActivity();
     }
 
+    // These tests must be performed in portrait mode because the next/previous buttons are removed from view
+    // when the app is in landscape mode.
     @Test
     public void verifyClickingNextLoadsCorrectData() {
         // click on RecipeCard recyclerView at given position

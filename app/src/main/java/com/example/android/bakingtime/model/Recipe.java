@@ -90,25 +90,8 @@ public class Recipe implements android.os.Parcelable {
         dest.writeTypedList(this.steps);
     }
 
-//    public Recipe(String image, int servings, String name, List<Ingredients> ingredients, int id, List<Steps> steps) {
-//      this.image = image;
-//      this.servings = servings;
-//      this.name = name;
-//      this.ingredients = ingredients;
-//      this.id = id;
-//      this.steps = steps;
-//    }
-
     public Recipe() {
     }
-
-//    public static class RecipesResults {
-//      private List<Recipe> results;
-//
-//      public List<Recipe> getResults() {
-//          return results;
-//      }
-//    }
 
     protected Recipe(Parcel in) {
         this.image = in.readString();

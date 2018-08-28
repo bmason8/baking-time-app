@@ -6,7 +6,6 @@
 
     <application
         android:allowBackup="true"
-        android:configChanges="orientation|screenSize|keyboardHidden"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -23,9 +22,6 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts"/>
-
-        <activity android:name=".RecipeDetailsActivity">
-        </activity>
 
         <service android:name=".widget.WidgetService"
                  android:permission="android.permission.BIND_REMOTEVIEWS">

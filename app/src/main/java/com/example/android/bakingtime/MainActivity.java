@@ -4,20 +4,16 @@ import android.arch.persistence.room.Room;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.test.espresso.idling.CountingIdlingResource;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.android.bakingtime.adapters.RecipeCardAdapter;
 import com.example.android.bakingtime.database.RecipeDatabase;
 import com.example.android.bakingtime.database.RoomAccess;
 import com.example.android.bakingtime.fragments.RecipeCardsFragment;
 import com.example.android.bakingtime.fragments.RecipeStepsFragment;
 import com.example.android.bakingtime.model.Recipe;
-import com.example.android.bakingtime.testing.EspressoIdlingResource;
 import com.example.android.bakingtime.utilities.ApiInterface;
 import com.example.android.bakingtime.utilities.Constants;
 
@@ -36,15 +32,11 @@ import static com.example.android.bakingtime.utilities.ApiInterface.BAKING_RECIP
 
 public class MainActivity extends AppCompatActivity {
 
-    CountingIdlingResource idlingResource = new CountingIdlingResource("DATA_LOADER");
-
     private FragmentManager fragmentManager;
     RecipeCardsFragment recipeCardsFragment;
 
     private List<Recipe> mRecipeList;
     private Recipe mRecipe;
-    private RecyclerView mRecyclerView;
-    private RecipeCardAdapter mAdapter;
     private int recipeId;
     private boolean setUpNewFragment;
     private boolean isFromWidget;
@@ -60,9 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             setUpNewFragment = true;
-            Log.d("MAIN", "saveInstanceState is null");
 
-            EspressoIdlingResource.increment();
             // Check the database for Recipes. If not null then get them, if not then run fetchRecipes to download them.
             new GetAllRecipesFromDb().execute();
 
@@ -76,18 +66,13 @@ public class MainActivity extends AppCompatActivity {
             if (Objects.equals(getIntent().getStringExtra(Constants.RECIPE_INTENT_SOURCE), Constants.INTENT_FROM_WIDGET_CLICK)) {
 
                 isFromWidget = true;
-                clearBackStackTest();
-//                fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
                 recipeId = getIntent().getIntExtra(Constants.RECIPE_WIDGET_ID, 1);
-                Log.d("IDrecievedByMA: ", String.valueOf(recipeId));
                 new GetRecipeById().execute();
             }
         }
     }
 
     private void startRecipeStepsFragmentFromWidgetClick(Recipe recipe) {
-        Log.d("MAIN", "startRecipeStepsFragmentFromWidgetClick ran");
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         RecipeStepsFragment recipeStepsFragment = new RecipeStepsFragment();
@@ -126,8 +111,7 @@ public class MainActivity extends AppCompatActivity {
                     RoomAccess.insertRecipes(mRecipeList, getApplicationContext());
 
                 } else {
-                    Log.d("failed", "failed to retrieve recipe list");
-                    Toast.makeText(MainActivity.this, "Failed to fetch recipes", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, R.string.failed_to_fetch_error, Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -141,9 +125,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void setUpRecipeCardsFragment() {
-        clearBackStack();
-        Toast.makeText(getApplicationContext(), "setUpRecipeCardsFragment", Toast.LENGTH_SHORT).show();
-//        fragmentManager = getSupportFragmentManager();
         recipeCardsFragment = new RecipeCardsFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable("recipeList", (Serializable) mRecipeList);
@@ -155,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Recipe doInBackground(Void... voids) {
-            RecipeDatabase mDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, "Recipe_db").build();
+            RecipeDatabase mDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, getString(R.string.recipe_db_name)).build();
             mRecipe = mDatabase.recipeDao().getRecipeById(recipeId);
             mDatabase.close();
             return mRecipe;
@@ -171,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected List<Recipe> doInBackground(Void... voids) {
-            RecipeDatabase mDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, "Recipe_db").build();
+            RecipeDatabase mDatabase = Room.databaseBuilder(getApplicationContext(), RecipeDatabase.class, getString(R.string.recipe_db_name)).build();
             mRecipeList = mDatabase.recipeDao().getAllRecipes();
             mDatabase.close();
             return mRecipeList;
@@ -185,22 +166,8 @@ public class MainActivity extends AppCompatActivity {
                 mRecipeList = recipeList;
                 if (!isFromWidget) {
                 setUpRecipeCardsFragment();
-                    EspressoIdlingResource.decrement();
                 }
             }
-        }
-    }
-
-    private void clearBackStack(){
-        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        fragmentManager.popBackStackImmediate();
-    }
-
-    private void clearBackStackTest() {
-        FragmentManager manager = getSupportFragmentManager();
-        if (manager.getBackStackEntryCount() > 0) {
-            FragmentManager.BackStackEntry first = manager.getBackStackEntryAt(0);
-            manager.popBackStack(first.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
 

@@ -26,7 +26,6 @@ public class RecipeCardsFragment extends Fragment implements RecipeCardAdapter.C
     private Recipe mRecipe;
     private RecyclerView mRecyclerView;
     private RecipeCardAdapter mAdapter;
-    private int recipeId;
     private boolean landscapeMode;
 
     @Override
@@ -82,7 +81,7 @@ public class RecipeCardsFragment extends Fragment implements RecipeCardAdapter.C
             RecipeStepsFragment recipeStepsFragment = new RecipeStepsFragment();
             bundle.putParcelable("recipe", mRecipe);
             recipeStepsFragment.setArguments(bundle);
-            fragmentManager.beginTransaction().replace(R.id.frame_fragment_holder, recipeStepsFragment, "TAG").
+            fragmentManager.beginTransaction().replace(R.id.frame_fragment_holder, recipeStepsFragment).
                     addToBackStack(null).commit();
     }
 

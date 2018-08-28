@@ -46,7 +46,6 @@ public class ClickThroughFragmentsAndVerifyData {
         // check that the short description is correct
         onView(withId(R.id.short_description))
                 .check(matches(withText(RECIPE_STEP_SHORT_DESCRIPTION_TEXT)));
-
     }
 
     @After

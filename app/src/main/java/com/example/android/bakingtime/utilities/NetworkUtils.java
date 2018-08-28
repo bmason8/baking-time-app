@@ -55,7 +55,6 @@ public class NetworkUtils {
                     recipeDatabase.recipeDao().insertAll(mRecipeList);
 
                 } else {
-                    Log.d("failed", "failed to retrieve recipe list");
                     Toast.makeText(context, "Failed to fetch recipes", Toast.LENGTH_LONG).show();
                 }
             }

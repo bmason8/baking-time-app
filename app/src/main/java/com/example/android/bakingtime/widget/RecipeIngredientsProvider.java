@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.example.android.bakingtime.MainActivity;
@@ -25,9 +24,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Implementation of App Widget functionality.
- */
 public class RecipeIngredientsProvider extends AppWidgetProvider {
 
     List<Recipe> mRecipeList = new ArrayList<>();
@@ -38,13 +34,10 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
 
     private RemoteViews updateWidget(final Context context) {
         mContext = context;
-        Log.d("testRP: ", "updateWidget");
-//        mRecipeList = new ArrayList<Recipe>();
 
         if (mRecipeList.isEmpty()) {
             try {
                 mRecipeList = new GetAllRecipes().execute().get();
-                Log.d("testRP: ", "newGetAllRecipesRan");
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
@@ -52,22 +45,18 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
 
         SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         final int position = mPreferences.getInt(Constants.WIDGET_RECIPE_ID, 1);
-        Log.d("idFromPreferences: ", "id: " + String.valueOf(position));
-
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.recipe_ingredients_widget);
 
         mRecipe = mRecipeList.get(position);
         mRecipeId = mRecipe.getId();
         recipeName = mRecipe.getName();
-        Log.d("testRP: ", "mRecipe.getName: " + recipeName);
 
             views.setTextViewText(R.id.widget_recipe_name, recipeName);
 
             // This launches MainActivity when the recipe title is clicked
             Intent intent = new Intent(context, MainActivity.class);
             intent.putExtra(Constants.RECIPE_INTENT_SOURCE, Constants.INTENT_FROM_WIDGET_CLICK);
-            Log.d("ID:mRecipeId: ", String.valueOf(mRecipeId));
             intent.putExtra(Constants.RECIPE_WIDGET_ID, mRecipeId);
             intent.putExtra(Constants.RECIPE_WIDGET_NAME, recipeName);
             PendingIntent pendingIntent = PendingIntent.getActivities(context, 0, new Intent[]{intent}, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -111,25 +100,19 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
             if (Objects.equals(direction, "forward")) {
 
                 int position = getSavedWidgetId(context);
-                Log.d("testRP", "idFromgetSavedWidgetId: " + String.valueOf(position));
                 int updatedPosition = position + 1;
-                Log.d("testRP", "updatedId: " + String.valueOf(updatedPosition));
                 if (updatedPosition > 3) {
                     updatedPosition = 0;
                 }
 
                 mRecipeId = updatedPosition;
-                Log.d("ID:mRecipeIdF", String.valueOf(updatedPosition));
 
                 updateSavedWidgetId(context, updatedPosition);
-
-//                Toast.makeText(context, "forward: " + String.valueOf(updatedId), Toast.LENGTH_LONG).show();
 
                 appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
                 for (int appWidgetId : appWidgetIds) {
                     appWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateWidget(context));
                 }
-                Log.d("testRP: ", "IfOnReceive");
 
             } else if (Objects.equals(direction, "previous")){
                 SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -139,11 +122,8 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
                     updatedPosition = 3;
                 }
                 mRecipeId = updatedPosition;
-                Log.d("ID:mRecipeIdB", String.valueOf(updatedPosition));
 
                 updateSavedWidgetId(context, updatedPosition);
-
-//                Toast.makeText(context, "previous: " + String.valueOf(updatedId), Toast.LENGTH_LONG).show();
 
                 appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
                 for (int appWidgetId : appWidgetIds) {
@@ -160,8 +140,6 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
             for (int appWidgetId : appWidgetIds) {
                 appWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateWidget(context));
             }
-
-            Log.d("testRP: ", "ElseOnReceive");
             super.onReceive(context, intent);
         }
     }
@@ -170,23 +148,18 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // There may be multiple widgets active, so update all of them
         appWidgetManager.updateAppWidget(appWidgetIds, updateWidget(context));
-        Log.d("testRP: ", "onUpdate");
     }
 
     @Override
     public void onEnabled(Context context) {
-        // Enter relevant functionality for when the first widget is created
-        Log.d("testRP: ", "onEnabled");
     }
 
     @Override
     public void onDisabled(Context context) {
-        // Enter relevant functionality for when the last widget is disabled
     }
 
     private int getSavedWidgetId(Context context) {
         SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        Log.d("testRP: ", "getSavedWidgetId");
         return mPreferences.getInt(Constants.WIDGET_RECIPE_ID, 1);
     }
 
@@ -195,7 +168,6 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
         SharedPreferences.Editor editor = mPreferences.edit();
         editor.putInt(Constants.WIDGET_RECIPE_ID, updatedId);
         editor.apply();
-        Log.d("testRP: ", "updateSavedWidgetId");
     }
 
     private class GetAllRecipes extends AsyncTask<Void, Void, ArrayList<Recipe>> {
@@ -204,7 +176,6 @@ public class RecipeIngredientsProvider extends AppWidgetProvider {
         protected ArrayList<Recipe> doInBackground(Void... voids) {
             RecipeDatabase mDatabase = Room.databaseBuilder(mContext, RecipeDatabase.class, "Recipe_db").build();
             mRecipeList = mDatabase.recipeDao().getAllRecipes();
-            Log.d("testRP: ", "doInBackground");
             mDatabase.close();
             return (ArrayList<Recipe>) mRecipeList;
         }

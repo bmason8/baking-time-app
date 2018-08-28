@@ -1,6 +1,5 @@
 package com.example.android.bakingtime.fragments;
 
-import android.support.test.espresso.IdlingRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
@@ -8,7 +7,6 @@ import android.widget.FrameLayout;
 
 import com.example.android.bakingtime.MainActivity;
 import com.example.android.bakingtime.R;
-import com.example.android.bakingtime.testing.EspressoIdlingResource;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,9 +29,10 @@ public class LaunchRecipeCardsFragmentTest {
     @Before
     public void setUp() throws Exception {
         mMainActivity = mActivityTestRule.getActivity();
-        IdlingRegistry.getInstance().register(EspressoIdlingResource.getIdlingResource());
     }
 
+    // This test is for verifying that the initial launch of the app fetches data properly by checking that the
+    // recyclerView is not null.
     @Test
     public void testRecipeCardsFragmentIsLaunchedAndRecyclerViewIsAdded() {
         // test if fragment is launched

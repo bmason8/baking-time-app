@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +42,7 @@ import butterknife.OnClick;
 public class StepInstructionsFragment extends Fragment {
 
     @OnClick(R.id.previous_button)
-            void previousStepClick() {
+    void previousStepClick() {
                 previousStep();
     }
 
@@ -130,19 +129,9 @@ public class StepInstructionsFragment extends Fragment {
         releasePlayer();
     }
 
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        Uri videoUri = NetworkUtils.convertStringToUri(mInstructions.getVideoURL());
-//        if (videoUri != null) {
-//            initializePlayer(videoUri);
-//        }
-//    }
-
     private void initializePlayer(Uri mediaUri) {
 
         if (mExoPlayer == null) {
-            Log.d("video", "mExoplayer is null");
             // Create an instance of the ExoPlayer
             TrackSelector trackSelector = new DefaultTrackSelector();
             LoadControl loadControl = new DefaultLoadControl();
@@ -153,20 +142,19 @@ public class StepInstructionsFragment extends Fragment {
             }
             mPlayerView.setPlayer(mExoPlayer);
             // Prepare the MediaSource
-            String userAgent = "temp";
+            String userAgent = "player";
             MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
                     getContext(), userAgent), new DefaultExtractorsFactory(), null, null);
             mExoPlayer.prepare(mediaSource);
 
             // true plays video right away, false requires pressing play
-            mExoPlayer.setPlayWhenReady(false);
+            mExoPlayer.setPlayWhenReady(true);
 
         }
     }
 
     private void releasePlayer() {
         if (mExoPlayer != null) {
-//            videoPlayBackPosition = mExoPlayer.getCurrentPosition();
             mExoPlayer.stop();
             mExoPlayer.release();
             mExoPlayer = null;
@@ -178,7 +166,6 @@ public class StepInstructionsFragment extends Fragment {
         mShortDescription.setText(mInstructions.getShortDescription());
         mDescription.setText(mInstructions.getDescription());
         String videoUrl = mInstructions.getVideoURL();
-        Log.d("videoURL ", "something: " + videoUrl);
         if (!videoUrl.isEmpty()) {
             initializePlayer(NetworkUtils.convertStringToUri(mInstructions.getVideoURL()));
         } else {
@@ -212,8 +199,7 @@ public class StepInstructionsFragment extends Fragment {
         updateData();
     }
 
-    // TODO: Rename this...it's not an actual interface
-    public void positionUpdateFromInterface(int newPosition) {
+    public void updatePosition(int newPosition) {
         position = newPosition;
         mInstructions = mRecipeSteps.get(position);
         releasePlayer();
