@@ -3,12 +3,14 @@ package com.example.android.bakingtime.fragments;
 import android.content.res.Configuration;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -16,9 +18,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.bakingtime.R;
 import com.example.android.bakingtime.model.Steps;
@@ -34,6 +36,9 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
+
+import com.squareup.picasso.Picasso;
 
 import java.io.Serializable;
 import java.util.List;
@@ -64,6 +69,8 @@ public class StepInstructionsFragment extends Fragment {
     TextView mShortDescription;
     @BindView(R.id.description)
     TextView mDescription;
+    @BindView(R.id.thumbnail_image)
+    ImageView mThumbnailImageView;
     @BindView(R.id.button_container_cdv)
     CardView mButtonCardView;
     @BindView(R.id.exo_player_frame)
@@ -75,6 +82,7 @@ public class StepInstructionsFragment extends Fragment {
     int position;
     long videoPlayBackPosition;
     boolean mTwoPane, mSplitView;
+    boolean mAutoPlay = true;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -86,6 +94,7 @@ public class StepInstructionsFragment extends Fragment {
             position = savedInstanceState.getInt("position");
             mSplitView = savedInstanceState.getBoolean("splitView");
             videoPlayBackPosition = savedInstanceState.getLong("playbackPosition");
+            mAutoPlay = savedInstanceState.getBoolean("autoPlay", true);
         } else {
             Bundle bundle = getArguments();
             if (bundle != null) {
@@ -113,8 +122,23 @@ public class StepInstructionsFragment extends Fragment {
 
         determineLayoutParameters(mSplitView);
 
-        updateData();
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT > 23) {
+            updateData();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (Util.SDK_INT <= 23 || mExoPlayer == null) {
+            updateData();
+        }
     }
 
     @Override
@@ -127,9 +151,11 @@ public class StepInstructionsFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        releasePlayer();
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT > 23) {
+            releasePlayer();
+        }
     }
 
     private void initializePlayer(Uri mediaUri) {
@@ -144,30 +170,38 @@ public class StepInstructionsFragment extends Fragment {
                 mExoPlayer.seekTo(videoPlayBackPosition);
             }
             mPlayerView.setPlayer(mExoPlayer);
+            // true plays video right away, false requires pressing play
+            mExoPlayer.setPlayWhenReady(mAutoPlay);
             // Prepare the MediaSource
             String userAgent = "player";
             MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
                     getContext(), userAgent), new DefaultExtractorsFactory(), null, null);
             mExoPlayer.prepare(mediaSource);
-
-            // true plays video right away, false requires pressing play
-            mExoPlayer.setPlayWhenReady(true);
-
         }
     }
 
     private void releasePlayer() {
         if (mExoPlayer != null) {
+            videoPlayBackPosition = mExoPlayer.getCurrentPosition();
             mExoPlayer.stop();
+            mAutoPlay = mExoPlayer.getPlayWhenReady();
             mExoPlayer.release();
             mExoPlayer = null;
         }
     }
 
-
     private void updateData() {
         mShortDescription.setText(mInstructions.getShortDescription());
         mDescription.setText(mInstructions.getDescription());
+
+        String thumbnailPath = mInstructions.getThumbnailURL();
+        if (!TextUtils.isEmpty(thumbnailPath)) {
+            // I removed the error and placeholder options on this method because I didn't want anything showing if there wasn't a valid image.
+            Picasso.get()
+                    .load(thumbnailPath)
+                    .into(mThumbnailImageView);
+        }
+
         String videoUrl = mInstructions.getVideoURL();
         if (!videoUrl.isEmpty()) {
             initializePlayer(NetworkUtils.convertStringToUri(mInstructions.getVideoURL()));
@@ -189,8 +223,8 @@ public class StepInstructionsFragment extends Fragment {
             position -= 1;
         }
         mInstructions = mRecipeSteps.get(position);
-        videoPlayBackPosition = 0;
         releasePlayer();
+        videoPlayBackPosition = 0;
         updateData();
     }
 
@@ -199,8 +233,8 @@ public class StepInstructionsFragment extends Fragment {
             position += 1;
         }
         mInstructions = mRecipeSteps.get(position);
-        videoPlayBackPosition = 0;
         releasePlayer();
+        videoPlayBackPosition = 0;
         updateData();
     }
 
@@ -219,6 +253,7 @@ public class StepInstructionsFragment extends Fragment {
         outState.putInt("position", position);
         outState.putBoolean("splitView", mSplitView);
         outState.putLong("playbackPosition", videoPlayBackPosition);
+        outState.putBoolean("autoPlay", mAutoPlay);
     }
 
 // https://stackoverflow.com/questions/2591036/how-to-hide-the-title-bar-for-an-activity-in-xml-with-existing-custom-theme

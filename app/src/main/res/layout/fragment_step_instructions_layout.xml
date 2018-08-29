@@ -49,6 +49,16 @@
         app:layout_constraintTop_toBottomOf="@+id/short_description"
         tools:text="Recipe step in full detail. Will probably be a couple of sentences."/>
 
+    <ImageView
+        android:id="@+id/thumbnail_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:contentDescription="@string/current_step_image_description"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/description"/>
+
     <android.support.v7.widget.CardView
         android:id="@+id/button_container_cdv"
         android:layout_width="match_parent"
